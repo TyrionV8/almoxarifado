@@ -1043,10 +1043,42 @@ def migrate_to_22(con: sqlite3.Connection) -> None:
                 'driver, tempo morto e proteção por entrada de falha.')
 
 
+def migrate_to_23(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'Watchdog', aliases=('IWDG', 'WWDG', 'watchdogs'),
+        meaning='Watchdog · temporizador de supervisão ("cão de guarda")',
+        short='Contador que reinicia o chip se o programa deixar de "alimentá-lo" a tempo: a última defesa contra travamentos em '
+              'equipamentos que precisam continuar funcionando sozinhos.',
+        detail=(
+            'O watchdog conta para baixo a partir de um valor de recarga. Quando o programa está funcionando, ele escreve uma chave '
+            'num registrador de tempos em tempos e recarrega o contador ("alimenta" o watchdog). Se o programa travar num laço '
+            'infinito, esperar para sempre um periférico que não responde ou se perder por um erro de memória, o contador chega ao '
+            'fim e o chip é reiniciado por hardware, voltando a um estado conhecido.\n\n'
+            'O IWDG (independente) usa o oscilador interno LSI, de cerca de 32 kHz, separado do clock principal: continua '
+            'funcionando se o cristal ou o PLL falharem e também nos modos Stop e Standby. Tem contador de 12 bits e prescaler de /4 '
+            'a /256, com prazo de cerca de 0,125 ms a 32,8 s (prazo = 4 × 2ᴾᴿ × (RL + 1) ÷ 32 kHz); depois de ligado, só um reset o '
+            'desliga. Como o LSI varia com a temperatura e de chip para chip, deixe folga no prazo.\n\n'
+            'O WWDG (com janela) usa o clock do barramento, tem contador de 7 bits e exige que a recarga aconteça dentro de uma '
+            'janela: cedo demais também causa reset. Assim ele detecta tanto o programa parado quanto o programa que corre rápido '
+            'demais, pulando etapas. Um aviso antecipado (EWI), quando o contador chega a 0x40, permite salvar dados ou registrar o '
+            'erro logo antes do reset. Com o barramento a 120 MHz, o prazo vai de dezenas de microssegundos até cerca de 280 ms.\n\n'
+            'Boas práticas: alimente no laço principal, depois de conferir que cada tarefa deu sinal de vida — nunca numa '
+            'interrupção de timer, que continua rodando mesmo com o programa travado. Escolha um prazo acima do pior caso normal '
+            '(gravar Flash, montar o cartão SD). Na inicialização, leia a causa do reset (RCC_RSR) e registre quando foi o '
+            'watchdog, e congele os watchdogs durante a depuração (DBGMCU). O watchdog não conserta o erro: só tira o sistema de um '
+            'estado travado.'),
+        example='O STM32H743 tem um IWDG e um WWDG. No Arduino, a biblioteca avr/wdt.h usa o watchdog do ATmega328P (prazos de 15 ms '
+                'a 8 s); nos PICs o WDT é ligado pelos bits de configuração, o que às vezes reinicia um programa que "funcionava" no '
+                'simulador.',
+        figure='assets/glossary/watchdog.svg',
+        caption='O contador do watchdog sendo alimentado até um travamento provocar o reset, a comparação entre o IWDG independente '
+                'e o WWDG com janela no H743, com prazos e fórmulas, e as boas práticas de uso.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
               15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20,
-              21: migrate_to_21, 22: migrate_to_22}
+              21: migrate_to_21, 22: migrate_to_22, 23: migrate_to_23}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

@@ -2063,15 +2063,19 @@ window.CATALOG = {
       "term": "VSS"
     },
     {
-      "aliases": [],
+      "aliases": [
+        "IWDG",
+        "WWDG",
+        "watchdogs"
+      ],
       "category_id": "fundamentos",
-      "detail": "Precisa ser atendido no prazo configurado. Não resolve toda falha e não deve ser alimentado indiscriminadamente.",
-      "example": "PICs e STM32 incluem mecanismos watchdog.",
-      "figure": null,
-      "figure_caption": null,
-      "meaning": "Temporizador de supervisão",
+      "detail": "O watchdog conta para baixo a partir de um valor de recarga. Quando o programa está funcionando, ele escreve uma chave num registrador de tempos em tempos e recarrega o contador (\"alimenta\" o watchdog). Se o programa travar num laço infinito, esperar para sempre um periférico que não responde ou se perder por um erro de memória, o contador chega ao fim e o chip é reiniciado por hardware, voltando a um estado conhecido.\n\nO IWDG (independente) usa o oscilador interno LSI, de cerca de 32 kHz, separado do clock principal: continua funcionando se o cristal ou o PLL falharem e também nos modos Stop e Standby. Tem contador de 12 bits e prescaler de /4 a /256, com prazo de cerca de 0,125 ms a 32,8 s (prazo = 4 × 2ᴾᴿ × (RL + 1) ÷ 32 kHz); depois de ligado, só um reset o desliga. Como o LSI varia com a temperatura e de chip para chip, deixe folga no prazo.\n\nO WWDG (com janela) usa o clock do barramento, tem contador de 7 bits e exige que a recarga aconteça dentro de uma janela: cedo demais também causa reset. Assim ele detecta tanto o programa parado quanto o programa que corre rápido demais, pulando etapas. Um aviso antecipado (EWI), quando o contador chega a 0x40, permite salvar dados ou registrar o erro logo antes do reset. Com o barramento a 120 MHz, o prazo vai de dezenas de microssegundos até cerca de 280 ms.\n\nBoas práticas: alimente no laço principal, depois de conferir que cada tarefa deu sinal de vida — nunca numa interrupção de timer, que continua rodando mesmo com o programa travado. Escolha um prazo acima do pior caso normal (gravar Flash, montar o cartão SD). Na inicialização, leia a causa do reset (RCC_RSR) e registre quando foi o watchdog, e congele os watchdogs durante a depuração (DBGMCU). O watchdog não conserta o erro: só tira o sistema de um estado travado.",
+      "example": "O STM32H743 tem um IWDG e um WWDG. No Arduino, a biblioteca avr/wdt.h usa o watchdog do ATmega328P (prazos de 15 ms a 8 s); nos PICs o WDT é ligado pelos bits de configuração, o que às vezes reinicia um programa que \"funcionava\" no simulador.",
+      "figure": "assets/glossary/watchdog.svg",
+      "figure_caption": "O contador do watchdog sendo alimentado até um travamento provocar o reset, a comparação entre o IWDG independente e o WWDG com janela no H743, com prazos e fórmulas, e as boas práticas de uso.",
+      "meaning": "Watchdog · temporizador de supervisão (\"cão de guarda\")",
       "position": 14,
-      "short": "Reinicia ou sinaliza se o software deixa de responder.",
+      "short": "Contador que reinicia o chip se o programa deixar de \"alimentá-lo\" a tempo: a última defesa contra travamentos em equipamentos que precisam continuar funcionando sozinhos.",
       "term": "Watchdog"
     }
   ],
@@ -2407,7 +2411,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 22,
+  "schema": 23,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
