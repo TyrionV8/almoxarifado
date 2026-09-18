@@ -517,14 +517,19 @@ def migrate_to_6(con: sqlite3.Connection) -> None:
 # Documentação completa, termo a termo, no modelo de QSPI: explicação em parágrafos, exemplo no acervo e figura SVG.
 
 def document_term(con: sqlite3.Connection, term: str, *, meaning: str, short: str, detail: str, example: str,
-                  figure: str, caption: str, aliases: tuple = (), category: str | None = None) -> None:
-    """Atualiza um termo do glossário ou, se ele não existir, cria no fim da categoria indicada."""
+                  figure: str, caption: str, aliases: tuple = (), category: str | None = None, after: str | None = None) -> None:
+    """Atualiza um termo do glossário ou, se ele não existir, cria na categoria indicada: logo depois de `after`
+    (os seguintes andam uma posição, para os "termos relacionados" continuarem vizinhos) ou no fim."""
     values = (meaning, short, detail, example, json.dumps(list(aliases), ensure_ascii=False), figure, caption)
     if con.execute('SELECT 1 FROM glossary WHERE term = ?', (term,)).fetchone():
         con.execute('UPDATE glossary SET meaning = ?, short = ?, detail = ?, example = ?, aliases = ?, figure = ?, figure_caption = ? '
                     'WHERE term = ?', (*values, term))
     else:
-        position = con.execute('SELECT COALESCE(MAX(position), 0) + 1 FROM glossary WHERE category_id = ?', (category,)).fetchone()[0]
+        if after:
+            position = con.execute('SELECT position + 1 FROM glossary WHERE term = ? AND category_id = ?', (after, category)).fetchone()[0]
+            con.execute('UPDATE glossary SET position = position + 1 WHERE category_id = ? AND position >= ?', (category, position))
+        else:
+            position = con.execute('SELECT COALESCE(MAX(position), 0) + 1 FROM glossary WHERE category_id = ?', (category,)).fetchone()[0]
         con.execute('INSERT INTO glossary(term, category_id, position, meaning, short, detail, example, aliases, figure, figure_caption) '
                     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (term, category, position, *values))
 
@@ -589,7 +594,37 @@ def migrate_to_8(con: sqlite3.Connection) -> None:
                 'os pontos de amostragem, a notação 8N1 e os erros mais comuns.')
 
 
-MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8}
+def migrate_to_9(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'LPUART', category='comunicacao', after='EUSART', aliases=('LPUART1',),
+        meaning='Low-Power Universal Asynchronous Receiver/Transmitter · UART de baixo consumo',
+        short='UART que continua recebendo com o chip em modo Stop, usando o cristal de 32,768 kHz, e acorda a CPU só quando chega '
+              'um dado.',
+        detail=(
+            'É uma UART (TX, RX e, se quiser, RTS/CTS e DE) feita para gastar pouco: ela continua recebendo com o chip em modo Stop e '
+            'acorda a CPU quando chega algo. Os quadros são iguais aos de qualquer UART (start, dados, paridade, stop), então do '
+            'outro lado pode estar qualquer UART comum.\n\n'
+            'O segredo é o clock. O LPUART pode usar o cristal LSE de 32,768 kHz, que continua ligado no Stop. O baud rate vem de um '
+            'divisor fracionário, BRR = 256 × f_clock ÷ baud: com o LSE, 9600 bit/s dá BRR ≈ 874 e erro de só 0,02 %. Como o BRR '
+            'mínimo é 0x300, o limite é f_clock ÷ 3; na prática, 9600 bit/s com o LSE. Para 115 200 bit/s ou mais, use HSI, CSI ou o '
+            'clock do barramento, e o consumo sobe.\n\n'
+            'O despertar pode ser programado para o start bit, para qualquer quadro, para um byte específico (endereço) ou para o '
+            'estado da FIFO. No STM32H743 o LPUART1 fica no domínio D3, junto com o RCC, a SRAM4 e o BDMA. Esse domínio pode seguir '
+            'funcionando com D1 (CPU) e D2 (onde ficam os USART) desligados. O DMA que atende o LPUART1 é o BDMA, que trabalha com a '
+            'SRAM4: confira no manual de referência RM0433 antes de montar o buffer.\n\n'
+            'Em troca, perde recursos: não tem modo síncrono, LIN, IrDA, Smartcard, detecção automática de baud rate nem timeout de '
+            'recepção. Use o LPUART para sensores, GPS, modems ou outro microcontrolador que enviam dados de vez em quando enquanto o '
+            'sistema dorme; para console e gravação, um USART comum é mais simples.'),
+        example='H743 WeAct: LPUART1 em PA9 (TX) e PA10 (RX), função alternativa AF3 — os mesmos pinos do USART1 (AF7), então só '
+                'um dos dois usa o par. O cristal LSE de 32,768 kHz já está montado na placa (PC14/PC15). A G474 também tem LPUART1; '
+                'F411 e F103 não têm.',
+        figure='assets/glossary/lpuart.svg',
+        caption='O que continua ligado no modo Stop (LSE e LPUART1 no domínio D3), o consumo ao longo do tempo com o despertar por '
+                'um quadro recebido, o cálculo do baud rate com 32,768 kHz e a comparação com os USART do H743.')
+
+
+MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
+              9: migrate_to_9}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

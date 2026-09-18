@@ -51,6 +51,7 @@ assert.match($('#performance-note').textContent, /STM32F103RB/);
 
 // Quantidade: disponíveis / total, calculada pelas movimentações.
 const catalog = run('C');
+const C_TERMS = catalog.glossary.length; // o número exato de termos é conferido em tests/test_inventory.py
 for (const c of catalog.components) assert.equal(stockOf(c.id), `${c.stock.available}/${c.stock.total}${c.estimated ? '*' : ''}`);
 const sum = key => catalog.components.reduce((n, c) => n + c.stock[key], 0);
 assert.match($('.stats').textContent, new RegExp(`${sum('available')}/${sum('total')}`));
@@ -177,8 +178,8 @@ assert.match($('#main').textContent, /pelo menos dois/);
 // Documentação (categorias e dicas vêm do banco).
 click('nav [data-view="glossario"]');
 assert.equal($$('.signal-diagram').length, 2);
-assert.equal($$('.glossary-card').length, 98);
-assert.match($('#glossary-count').textContent, /98 de 98/);
+assert.equal($$('.glossary-card').length, C_TERMS);
+assert.match($('#glossary-count').textContent, new RegExp(`${C_TERMS} de ${C_TERMS}`));
 assert.match($('.glossary-card').textContent, /Exemplo:/);
 input('#glossary-search', 'analog-to-digital');
 assert.equal($$('.glossary-card').length, 1);
@@ -193,7 +194,7 @@ assert.equal(dialog.open, false);
 input('#glossary-search', '');
 choose('#glossary-category', 'gravacao');
 assert.equal($$('.glossary-card').length, 8);
-assert.match($('#glossary-count').textContent, /8 de 98/);
+assert.match($('#glossary-count').textContent, new RegExp(`8 de ${C_TERMS}`));
 
 click('nav [data-view="ferramentas"]');
 assert.equal($$('.tools-grid article').length, 3);

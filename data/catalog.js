@@ -887,7 +887,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Controller Area Network · rede de controladores",
-      "position": 9,
+      "position": 10,
       "short": "Barramento robusto para comunicação entre dispositivos.",
       "term": "CAN"
     },
@@ -959,7 +959,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Chip Select · seleção do chip",
-      "position": 19,
+      "position": 20,
       "short": "Sinal que seleciona o dispositivo SPI.",
       "term": "CS"
     },
@@ -1019,7 +1019,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Digital Camera Interface · interface de câmera digital",
-      "position": 24,
+      "position": 25,
       "short": "Recebe imagem de sensores com barramento paralelo (DVP).",
       "term": "DCMI"
     },
@@ -1151,7 +1151,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Flexible Data-rate CAN · CAN com taxa de dados flexível",
-      "position": 10,
+      "position": 11,
       "short": "Controlador CAN com suporte a quadros CAN FD.",
       "term": "FDCAN"
     },
@@ -1295,7 +1295,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Inter-Integrated Circuit · barramento entre circuitos",
-      "position": 7,
+      "position": 8,
       "short": "Comunicação por duas linhas: SDA e SCL.",
       "term": "I2C"
     },
@@ -1358,6 +1358,20 @@ window.CATALOG = {
       "position": 1,
       "short": "Unidade binária de capacidade de memória.",
       "term": "KiB"
+    },
+    {
+      "aliases": [
+        "LPUART1"
+      ],
+      "category_id": "comunicacao",
+      "detail": "É uma UART (TX, RX e, se quiser, RTS/CTS e DE) feita para gastar pouco: ela continua recebendo com o chip em modo Stop e acorda a CPU quando chega algo. Os quadros são iguais aos de qualquer UART (start, dados, paridade, stop), então do outro lado pode estar qualquer UART comum.\n\nO segredo é o clock. O LPUART pode usar o cristal LSE de 32,768 kHz, que continua ligado no Stop. O baud rate vem de um divisor fracionário, BRR = 256 × f_clock ÷ baud: com o LSE, 9600 bit/s dá BRR ≈ 874 e erro de só 0,02 %. Como o BRR mínimo é 0x300, o limite é f_clock ÷ 3; na prática, 9600 bit/s com o LSE. Para 115 200 bit/s ou mais, use HSI, CSI ou o clock do barramento, e o consumo sobe.\n\nO despertar pode ser programado para o start bit, para qualquer quadro, para um byte específico (endereço) ou para o estado da FIFO. No STM32H743 o LPUART1 fica no domínio D3, junto com o RCC, a SRAM4 e o BDMA. Esse domínio pode seguir funcionando com D1 (CPU) e D2 (onde ficam os USART) desligados. O DMA que atende o LPUART1 é o BDMA, que trabalha com a SRAM4: confira no manual de referência RM0433 antes de montar o buffer.\n\nEm troca, perde recursos: não tem modo síncrono, LIN, IrDA, Smartcard, detecção automática de baud rate nem timeout de recepção. Use o LPUART para sensores, GPS, modems ou outro microcontrolador que enviam dados de vez em quando enquanto o sistema dorme; para console e gravação, um USART comum é mais simples.",
+      "example": "H743 WeAct: LPUART1 em PA9 (TX) e PA10 (RX), função alternativa AF3 — os mesmos pinos do USART1 (AF7), então só um dos dois usa o par. O cristal LSE de 32,768 kHz já está montado na placa (PC14/PC15). A G474 também tem LPUART1; F411 e F103 não têm.",
+      "figure": "assets/glossary/lpuart.svg",
+      "figure_caption": "O que continua ligado no modo Stop (LSE e LPUART1 no domínio D3), o consumo ao longo do tempo com o despertar por um quadro recebido, o cálculo do baud rate com 32,768 kHz e a comparação com os USART do H743.",
+      "meaning": "Low-Power Universal Asynchronous Receiver/Transmitter · UART de baixo consumo",
+      "position": 6,
+      "short": "UART que continua recebendo com o chip em modo Stop, usando o cristal de 32,768 kHz, e acorda a CPU só quando chega um dado.",
+      "term": "LPUART"
     },
     {
       "aliases": [],
@@ -1451,7 +1465,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master In Slave Out",
-      "position": 13,
+      "position": 14,
       "short": "Linha SPI do periférico para o controlador.",
       "term": "MISO"
     },
@@ -1463,7 +1477,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Out Slave In",
-      "position": 12,
+      "position": 13,
       "short": "Linha SPI do controlador para o periférico.",
       "term": "MOSI"
     },
@@ -1487,7 +1501,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Synchronous Serial Port",
-      "position": 11,
+      "position": 12,
       "short": "Periférico de comunicação síncrona dos PICs.",
       "term": "MSSP"
     },
@@ -1559,7 +1573,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Saída de dreno aberto",
-      "position": 21,
+      "position": 22,
       "short": "Saída que puxa para baixo ou fica em alta impedância.",
       "term": "Open Drain"
     },
@@ -1595,7 +1609,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Physical Layer · camada física",
-      "position": 22,
+      "position": 23,
       "short": "Circuito que traduz sinais digitais para o meio físico.",
       "term": "PHY"
     },
@@ -1643,7 +1657,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Resistor para a alimentação positiva",
-      "position": 20,
+      "position": 21,
       "short": "Mantém uma linha em nível alto quando ninguém a aciona.",
       "term": "Pull-up"
     },
@@ -1683,7 +1697,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Receive · recepção",
-      "position": 18,
+      "position": 19,
       "short": "Sinal de entrada de dados seriais.",
       "term": "RX"
     },
@@ -1695,7 +1709,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock",
-      "position": 14,
+      "position": 15,
       "short": "Clock que sincroniza os bits da interface serial.",
       "term": "SCK"
     },
@@ -1707,7 +1721,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock Line",
-      "position": 16,
+      "position": 17,
       "short": "Linha de clock do barramento I2C.",
       "term": "SCL"
     },
@@ -1719,7 +1733,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Data",
-      "position": 15,
+      "position": 16,
       "short": "Linha de dados do barramento I2C.",
       "term": "SDA"
     },
@@ -1731,7 +1745,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Secure Digital / MultiMediaCard interface",
-      "position": 23,
+      "position": 24,
       "short": "Controlador de cartão SD em barramento de 1 ou 4 bits.",
       "term": "SDMMC"
     },
@@ -1755,7 +1769,7 @@ window.CATALOG = {
       "figure": "assets/glossary/spi.svg",
       "figure_caption": "Barramento com um controlador e dois periféricos (SCK, MOSI e MISO compartilhados, um CS para cada), usando os pinos da Flash SPI da H743; embaixo, um byte trocado no modo 0 e a tabela dos quatro modos CPOL/CPHA.",
       "meaning": "Serial Peripheral Interface · interface periférica serial",
-      "position": 6,
+      "position": 7,
       "short": "Barramento síncrono com clock e seleção do dispositivo.",
       "term": "SPI"
     },
@@ -1815,7 +1829,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Transmit · transmissão",
-      "position": 17,
+      "position": 18,
       "short": "Sinal de saída de dados seriais.",
       "term": "TX"
     },
@@ -1899,7 +1913,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Universal Serial Bus · barramento serial universal",
-      "position": 8,
+      "position": 9,
       "short": "Interface de comunicação e alimentação.",
       "term": "USB"
     },
@@ -2344,7 +2358,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 8,
+  "schema": 9,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
