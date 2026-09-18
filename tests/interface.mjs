@@ -35,7 +35,7 @@ const stockOf = id => $(`[data-open-history="${id}"] .stock-ratio`).textContent;
 resetSelects();
 
 // Tabela montada a partir do banco.
-assert.equal(count(), 10);
+assert.equal(count(), 11);
 assert.equal($$('#inventory thead tr:last-child th').length, 25);
 assert.equal($$('[data-column-toggle]').length, 23);
 assert.deepEqual($$('.column-groups th').map(th => th.textContent), ['Acervo', 'Desempenho e memória', 'Periféricos', 'Elétrica', 'Detalhes']);
@@ -54,7 +54,7 @@ const catalog = run('C');
 for (const c of catalog.components) assert.equal(stockOf(c.id), `${c.stock.available}/${c.stock.total}${c.estimated ? '*' : ''}`);
 const sum = key => catalog.components.reduce((n, c) => n + c.stock[key], 0);
 assert.match($('.stats').textContent, new RegExp(`${sum('available')}/${sum('total')}`));
-assert.equal($('#component-count').textContent, '10');
+assert.equal($('#component-count').textContent, '11');
 
 // Colunas configuráveis.
 {
@@ -77,8 +77,8 @@ assert.equal($('[data-select]').dataset.select, 'h7r3');
 // Busca e filtros.
 input('#search', 'PIC12F675'); assert.equal(count(), 1);
 input('#search', 'nada-corresponde'); assert.equal(count(), 0); assert.match($('#rows').textContent, /Nenhum/);
-input('#search', ''); assert.equal(count(), 10);
-choose('#family', 'STM32'); assert.equal(count(), 4);
+input('#search', ''); assert.equal(count(), 11);
+choose('#family', 'STM32'); assert.equal(count(), 5);
 choose('#family', '');
 
 // Ficha e abas.
@@ -98,6 +98,16 @@ click('[data-expand="g474"]'); click('[data-tab="pins"]');
 assert.deepEqual($$('.pinout-image').map(i => i.getAttribute('src')), ['assets/pinouts/g474-long-pinout-simple.png', 'assets/pinouts/g474-long-pinout-full.png']);
 click('[data-expand="h7r3"]'); click('[data-tab="pins"]');
 assert.deepEqual($$('.pinout-image').map(i => i.getAttribute('src')), ['simple', 'full', 'simple-left', 'simple-right', 'full-left', 'full-right', 'full-extra'].map(n => `assets/pinouts/h7-pinout-${n}.png`));
+click('[data-expand="h743"]');
+assert.ok($('.tab-content [data-term="QSPI"]'), '"Flash QSPI" na ficha vira termo');
+click('.tab-content [data-term="QSPI"]');
+assert.equal(dialog.open, true);
+assert.ok(existsSync(path.join(root, $('.term-figure img').getAttribute('src'))));
+assert.match($('#term-content').textContent, /Quad-SPI/);
+assert.ok($$('#term-content .term-detail-grid.long p').length >= 4);
+click('.close');
+click('[data-tab="pins"]');
+assert.deepEqual($$('.pinout-image').map(i => i.getAttribute('src')), ['simple', 'full', 'simple-left', 'simple-right', 'full-left', 'full-right', 'full-extra'].map(n => `assets/pinouts/h743-pinout-${n}.png`));
 click('[data-expand="bluepill"]'); click('[data-tab="pins"]');
 assert.match($('.tab-content .notice').textContent, /micro-USB/);
 click('[data-tab="pdf"]');
@@ -167,8 +177,8 @@ assert.match($('#main').textContent, /pelo menos dois/);
 // Documentação (categorias e dicas vêm do banco).
 click('nav [data-view="glossario"]');
 assert.equal($$('.signal-diagram').length, 2);
-assert.equal($$('.glossary-card').length, 94);
-assert.match($('#glossary-count').textContent, /94 de 94/);
+assert.equal($$('.glossary-card').length, 98);
+assert.match($('#glossary-count').textContent, /98 de 98/);
 assert.match($('.glossary-card').textContent, /Exemplo:/);
 input('#glossary-search', 'analog-to-digital');
 assert.equal($$('.glossary-card').length, 1);
@@ -183,7 +193,7 @@ assert.equal(dialog.open, false);
 input('#glossary-search', '');
 choose('#glossary-category', 'gravacao');
 assert.equal($$('.glossary-card').length, 8);
-assert.match($('#glossary-count').textContent, /8 de 94/);
+assert.match($('#glossary-count').textContent, /8 de 98/);
 
 click('nav [data-view="ferramentas"]');
 assert.equal($$('.tools-grid article').length, 3);

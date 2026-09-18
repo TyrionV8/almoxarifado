@@ -1,6 +1,6 @@
 # Fontes e créditos
 
-Documentos obtidos em 12/09/2026. Os originais permanecem sem alterações; as prévias são renderizações das páginas identificadas. Direitos e marcas continuam pertencendo aos respectivos autores. Não há licença única aplicada aos documentos de terceiros.
+Documentos obtidos em 12/09/2026; os três da H743 em 17/09/2026. Os originais permanecem sem alterações; as prévias são renderizações das páginas identificadas. Direitos e marcas continuam pertencendo aos respectivos autores. Não há licença única aplicada aos documentos de terceiros.
 
 | Arquivo local | Páginas | Origem |
 | --- | ---: | --- |
@@ -20,10 +20,13 @@ Documentos obtidos em 12/09/2026. Os originais permanecem sem alterações; as p
 | [h7-pinout.pdf](../assets/documents/h7-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Hardware/WeAct-STM32H7R3Zx_CoreBoard_V10%20Board%20Shape%20%E5%A4%96%E5%BD%A2.pdf) |
 | [stm32f411ce.pdf](../assets/documents/stm32f411ce.pdf) | 149 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/Datasheet/STM32F411CEU6_Datasheet.pdf) |
 | [blackpill-pinout.pdf](../assets/documents/blackpill-pinout.pdf) | 1 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/General%20document/STM32F4x1%20v2.0+%20Pin%20Layout.pdf) |
+| [stm32h743vi.pdf](../assets/documents/stm32h743vi.pdf) | 357 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Datasheet/MCU/STM32H743VI_Datasheet.pdf) · ST DS12110 Rev 7 |
+| [h743-schematic.pdf](../assets/documents/h743-schematic.pdf) | 6 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx%20SchDoc%20V12.pdf) · esquema V1.2 |
+| [h743-pinout.pdf](../assets/documents/h743-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx_BoardShape%20Board%20Shape%20%E5%A4%96%E5%BD%A2%20V12.pdf) · desenho mecânico V1.2 |
 
 ## Pinagens
 
-As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho e sem arte gerada. As exceções são a G474 Long e a H7R3, que usam desenhos próprios descritos em [G474-PINOUT.md](G474-PINOUT.md) e [H7R3-PINOUT.md](H7R3-PINOUT.md). A numeração é a física do PDF (começando em 1), não a impressa. `scripts/prepare_pinouts.py` reproduz cada recorte a partir dos arquivos versionados.
+As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho e sem arte gerada. As exceções são a G474 Long, a H7R3 e a H743, que usam desenhos próprios descritos em [G474-PINOUT.md](G474-PINOUT.md), [H7R3-PINOUT.md](H7R3-PINOUT.md) e [H743-PINOUT.md](H743-PINOUT.md). A numeração é a física do PDF (começando em 1), não a impressa. `scripts/prepare_pinouts.py` reproduz cada recorte a partir dos arquivos versionados.
 
 | Componente | Fonte | Trecho usado |
 | --- | --- | --- |
@@ -37,6 +40,7 @@ As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho 
 | BlackPill | blackpill-pinout.pdf | p. 1, página inteira e inalterada |
 | G474 Long | stm32g474.pdf (tabelas 12 e 13) + g474-long-schematic.pdf + weact-g474-long-board.png | desenhos próprios empilhados: `g474-long-pinout-simple.png` (visão rápida) e `g474-long-pinout-full.png` (todas as funções), ambos com numeração UFQFPN48 conferida. Ver [G474-PINOUT.md](G474-PINOUT.md) |
 | H7R3 | stm32h7r3.pdf (tabelas 2, 3, 19 e 20) + h7-schematic.pdf + h7-pinout.pdf | duas visões gerais (`h7-pinout-simple.png`, `h7-pinout-full.png`) e cinco folhas por header (`h7-pinout-simple-left/right.png`, `h7-pinout-full-left/right/extra.png`), com esferas UFBGA144 SMPS GP. Ver [H7R3-PINOUT.md](H7R3-PINOUT.md) |
+| H743 | stm32h743vi.pdf (tabelas 9–14 e 17) + h743-schematic.pdf + h743-pinout.pdf + weact-h743-boardshape.png | mesma organização da H7R3: duas visões gerais (`h743-pinout-simple.png`, `h743-pinout-full.png`) e cinco folhas (`h743-pinout-simple-left/right.png`, `h743-pinout-full-left/right/extra.png`), com números LQFP100; geradas por `scripts/make_h743_pinouts.py`. Ver [H743-PINOUT.md](H743-PINOUT.md) |
 
 Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA-256, crédito e licença de cada um estão em `data/pinout_sources.json`.
 
@@ -44,7 +48,7 @@ Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA
 
 - Microchip / Atmel: datasheets dos PICs e ATmega328P. Avisos de direitos preservados nos PDFs.
 - STMicroelectronics: datasheets STM32; algumas cópias distribuídas no repositório oficial WeAct.
-- WeAct Studio: diagramas, esquemas, renders e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho. As pinagens da H7R3 (simples e completa) são desenhos do almoxarifado a partir do DS14360 (STMicroelectronics), do esquema e do desenho mecânico WeAct. As pinagens da G474 Long (simples e completa) são desenhos do almoxarifado: a simples usa o render oficial WeAct como fundo, e a completa usa dados do DS12288 (STMicroelectronics), o esquema WeAct e uma foto da placa do usuário.
+- WeAct Studio: diagramas, esquemas, renders e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho. As pinagens da H7R3 (simples e completa) são desenhos do almoxarifado a partir do DS14360 (STMicroelectronics), do esquema e do desenho mecânico WeAct. As pinagens da H743 são desenhos do almoxarifado a partir do DS12110 (STMicroelectronics), do esquema V1.2 e do desenho mecânico WeAct MiniSTM32H7xx. As pinagens da G474 Long (simples e completa) são desenhos do almoxarifado: a simples usa o render oficial WeAct como fundo, e a completa usa dados do DS12288 (STMicroelectronics), o esquema WeAct e uma foto da placa do usuário.
 - BluePill: *The Generic STM32F103 Pinout Diagram*, de Rasmus Friis Kjeldsen (reblag.dk/stm32), publicado no Wikimedia Commons sob Creative Commons Attribution-ShareAlike 4.0. Usado sem alteração; o crédito e a licença aparecem na aba de pinagem e em `data/pinout_sources.json`. Obras derivadas deste desenho precisam manter a mesma licença.
 - Arduino: pinouts Uno e Nano, licença Creative Commons Attribution-ShareAlike 4.0 indicada nos documentos. As prévias mantêm os créditos da página.
 - Print da variante BlackPill: fornecido pelo usuário nesta tarefa; imagem de anúncio usada apenas como evidência de variante, não como fonte de limites elétricos.

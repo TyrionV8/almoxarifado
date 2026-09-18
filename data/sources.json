@@ -94,5 +94,23 @@
     "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/General document/STM32F4x1 v2.0+ Pin Layout.pdf",
     "sha256": "9b1a3b36a803108411bea313dd76947c3d5829927ee133d0dc17fdd55609d1d8",
     "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/stm32h743vi.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Datasheet/MCU/STM32H743VI_Datasheet.pdf",
+    "sha256": "9c74d2015445f7c3c2c9076fc13a2665c8f6fecec7898d128dac836d6d39314b",
+    "retrieved": "2026-09-17"
+  },
+  {
+    "file": "assets/documents/h743-schematic.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx SchDoc V12.pdf",
+    "sha256": "cd0c19625e3d9e56b59368affb5ba8d89aeb5ab63c5320e6220500fc0b6502f2",
+    "retrieved": "2026-09-17"
+  },
+  {
+    "file": "assets/documents/h743-pinout.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx_BoardShape Board Shape 外形 V12.pdf",
+    "sha256": "222eb3b6b193e9a1deb30acb06c254adc029a6bcf43aaa79a03d0db99fa6a7fb",
+    "retrieved": "2026-09-17"
   }
 ]

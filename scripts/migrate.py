@@ -367,7 +367,153 @@ def migrate_to_4(con: sqlite3.Connection) -> None:
     con.execute("UPDATE components SET specs = ? WHERE id = 'nano'", (json.dumps(specs, ensure_ascii=False, sort_keys=True),))
 
 
-MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4}
+# ---------------------------------------------------------------- versão 5
+# WeAct MiniSTM32H743 (STM32H743VIT6), adquirida pelo usuário; fotos da placa enviadas em 17/09/2026.
+# Pinagens geradas por scripts/make_h743_pinouts.py (docs/H743-PINOUT.md).
+
+H743_PINOUTS = [
+    {'file': 'h743-pinout-simple.png', 'title': 'Visão geral · simples (placa inteira) · clique para ampliar', 'notice': ''},
+    {'file': 'h743-pinout-full.png', 'title': 'Visão geral · completa (placa inteira) · clique para ampliar', 'notice': ''},
+    {'file': 'h743-pinout-simple-left.png', 'title': 'Simples · header esquerdo (P2)', 'notice': ''},
+    {'file': 'h743-pinout-simple-right.png', 'title': 'Simples · header direito (P1)', 'notice': ''},
+    {'file': 'h743-pinout-full-left.png', 'title': 'Completa · header esquerdo (P2) · todas as funções', 'notice': ''},
+    {'file': 'h743-pinout-full-right.png', 'title': 'Completa · header direito (P1) · todas as funções', 'notice': ''},
+    {'file': 'h743-pinout-full-extra.png', 'title': 'Completa · pinos fora dos headers e notas', 'notice': ''},
+]
+
+H743_SPECS = {
+    'accelerators': 'FPU dupla precisão · DSP · cache L1 · Chrom-ART · JPEG',
+    'adc': '3 ADCs · 16 bits · até 3,6 MSPS',
+    'clock': 480,
+    'coremark': 2424,
+    'coremark_note': 'Valor publicado pela ST para o STM32H743 a 480 MHz (página da série STM32H7); não consta no DS12110 local.',
+    'coremark_per_mhz': 5.05,
+    'cpu': 'Cortex-M7 · 32 bits · FPU dupla precisão · DSP · cache L1 16 + 16 KiB',
+    'dac': '2 canais · 12 bits (PA4 e PA5)',
+    'datasheet': 'stm32h743vi.pdf',
+    'dmips': 1027,
+    'dmips_per_mhz': 2.14,
+    'eeprom': 'Sem EEPROM',
+    'external': '8 MB Flash QSPI + 8 MB Flash SPI na placa (WeAct) · microSD',
+    'flash': '2 MiB (2 bancos de 1 MiB)',
+    'flash_short': '2 MiB',
+    'gpio': '82 no chip (LQFP100); 76 nos headers, vários já ligados a LCD, câmera, microSD e flashes',
+    'logic': '3,3 V',
+    'notes': ('RAM: 1.056 KiB = 864 KiB de SRAM (AXI 512 + SRAM1–3 288 + SRAM4 64) + 192 KiB de TCM (64 ITCM + 128 DTCM), '
+              'mais 4 KiB de backup; nem todo banco é acessível por todo DMA. A placa ocupa pinos dos headers: TFT em PE10–PE14, '
+              'câmera DCMI, microSD em PC8–PC12/PD2 e flashes em PB2–PB4/PB6/PD6/PD7/PD11–PD13/PE2. '
+              'PC2_C/PC3_C são pads analógicos. Ethernet e USB HS precisam de PHY externo.'),
+    'origin': 'Fotos da placa enviadas pelo usuário em 17/09/2026 (chip STM32H743VIT6, serigrafia WeAct Studio); documentação oficial WeActStudio/MiniSTM32H7xx',
+    'oscillator': 'Cristal 25 MHz (HSE) + 32,768 kHz (LSE); núcleo até 480 MHz via PLL',
+    'package': 'STM32H743VIT6 · LQFP-100',
+    'pin_guide': 'stm32',
+    'pinout': H743_PINOUTS[0]['file'],
+    'pinout_credit': ('Desenhos do almoxarifado gerados por scripts/make_h743_pinouts.py a partir do ST DS12110 Rev 7 '
+                      '(tabelas 9–14), do esquema e do desenho mecânico WeAct STM32H7xx V1.2 · pino do CI = número do LQFP100'),
+    'pinout_source': 'h743-pinout.pdf',
+    'pinouts': H743_PINOUTS,
+    'processing_class': 'Alto desempenho',
+    'programmer': 'ST-Link V2 · SWD (conector de 4 furos); USB DFU segurando B0; UART PA9/PA10 pelo bootloader',
+    'pwm': 'HRTIM + timers avançados e gerais',
+    'ram': 1081344,
+    'relative_bluepill': 11.41,
+    'schematic': 'h743-schematic.pdf',
+    'serial': 'USART/UART · LPUART · SPI/I2S · I2C · USB FS · FDCAN · SDMMC · Ethernet (com PHY)',
+    'special': 'Câmera DCMI · LCD-TFT · JPEG · Chrom-ART · 2 comparadores · 2 OPAMP · DFSDM',
+    'subtitle': 'STM32H743VIT6',
+    'temperature': '−40 a +85 °C (sufixo 6)',
+    'timers': 'HRTIM + 2 avançados + 10 gerais (2 de 32 bits) + 2 básicos + 5 low-power + 2 watchdogs + SysTick',
+    'use': 'Câmera e display, processamento de imagem e áudio, DSP em ponto flutuante e registro em microSD.',
+    'variant': 'WeAct MiniSTM32H7xx · H743VIT6 · TFT 0,96″ · 8 MB QSPI + 8 MB SPI',
+    'voltage': '3,3 V',
+}
+
+NEW_TERMS = [
+    # termo, categoria, significado, resumo, funcionamento, exemplo
+    ('TCM', 'memoria', 'Tightly-Coupled Memory · memória acoplada ao núcleo',
+     'RAM ligada diretamente ao Cortex-M7, sem cache e com tempo de acesso fixo.',
+     'ITCM guarda código e DTCM guarda dados críticos; o acesso não passa pelo barramento AXI. Confira quais controladores DMA alcançam cada banco antes de colocar buffers nela.',
+     'H743: 64 KiB de ITCM e 128 KiB de DTCM somados aos 864 KiB de SRAM.'),
+    ('Quad-SPI', 'memoria', 'Quad Serial Peripheral Interface · SPI de quatro linhas de dados',
+     'Interface para memória Flash externa com quatro vias de dados.',
+     'Transfere 4 bits por clock e, em modo mapeado, deixa a CPU ler a Flash externa como se fosse memória interna. Pinos, modo e comandos precisam corresponder ao chip de memória.',
+     'H743 WeAct: Flash QSPI de 8 MB em PB2, PB6, PD11–PD13 e PE2.'),
+    ('SDMMC', 'comunicacao', 'Secure Digital / MultiMediaCard interface',
+     'Controlador de cartão SD em barramento de 1 ou 4 bits.',
+     'Usa CLK, CMD e D0–D3; costuma ser acompanhado de biblioteca de sistema de arquivos (FAT). Pull-ups e comprimento das trilhas afetam a velocidade máxima.',
+     'H743 WeAct: microSD no SDMMC1 (PC8–PC12 e PD2), detecção em PD4.'),
+    ('DCMI', 'comunicacao', 'Digital Camera Interface · interface de câmera digital',
+     'Recebe imagem de sensores com barramento paralelo (DVP).',
+     'Captura 8 a 14 bits por pulso de PIXCLK, sincronizados por HSYNC e VSYNC, normalmente com DMA para a RAM. O sensor é configurado à parte por I2C (SCCB).',
+     'H743 WeAct: conector de câmera de 24 vias para OV2640, OV7725 ou OV5640.'),
+]
+
+
+def migrate_to_5(con: sqlite3.Connection) -> None:
+    position = con.execute('SELECT MAX(position) FROM components').fetchone()[0] + 1
+    con.execute('INSERT INTO components VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                ('h743', 'microcontroladores', 'WeAct H743', 'STM32', 'placa', 0, position,
+                 json.dumps(H743_SPECS, ensure_ascii=False, sort_keys=True)))
+    con.execute('INSERT INTO movements(component_id, type_id, quantity, date, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                ('h743', 'compra', 1, '2026-09-17', 'Recém-adquirida; fotos da placa enviadas pelo usuário. Data exata da compra não registrada.',
+                 '2026-09-17T12:00:00+00:00'))
+    for term, category, meaning, short, detail, example in NEW_TERMS:
+        after = con.execute('SELECT COALESCE(MAX(position), 0) + 1 FROM glossary WHERE category_id = ?', (category,)).fetchone()[0]
+        con.execute('INSERT INTO glossary VALUES (?, ?, ?, ?, ?, ?, ?)', (term, category, after, meaning, short, detail, example))
+    con.execute("""UPDATE tools SET compatibility = ? WHERE id = 'stlink'""",
+                ('BluePill F103, BlackPill F411 e H743 via SWD. G474 requer software atualizado; conferir suporte H7RS para H7R3 '
+                 'e variante/firmware do gravador.',))
+
+
+# ---------------------------------------------------------------- versão 6
+# Glossário com sinônimos reconhecidos no texto (aliases), figura opcional e explicação em parágrafos.
+# QSPI ganha documentação completa e diagrama; SPI ganha diagrama (assets/glossary/*.svg).
+
+QSPI_DETAIL = (
+    'Ligação: CLK e NCS (seleção, ativa em nível baixo) mais IO0–IO3. As quatro linhas são bidirecionais: IO0 e IO1 fazem o papel '
+    'de MOSI e MISO quando a memória fala SPI comum, e IO2/IO3 são os antigos /WP e /HOLD da Flash. Por isso a mesma Flash '
+    'funciona em SPI (1 linha), Dual (2) ou Quad (4); o modo quad normalmente precisa ser liberado pelo bit QE do registrador de '
+    'status da memória.\n\n'
+    'Cada acesso tem fases: instrução (8 bits, muitas vezes numa linha só), endereço (24 bits até 16 MB; 32 bits acima), bytes de '
+    'modo, ciclos dummy (tempo para a memória buscar o dado) e dados. No comando EBh, notação 1-4-4, a instrução usa 1 linha e '
+    'endereço e dados usam 4: cada byte passa em 2 clocks, contra 8 no SPI comum. Comando, largura de cada fase e número de dummy '
+    'precisam bater com o datasheet da Flash; um valor errado desloca todos os bits lidos.\n\n'
+    'O periférico QUADSPI do STM32H743 tem três modos: indireto (o programa envia comandos e lê ou grava por registrador ou DMA), '
+    'polling de status (espera a Flash terminar uma gravação sem ocupar a CPU) e mapeado em memória (a Flash aparece a partir de '
+    '0x9000 0000 e pode ser lida, e até executada, como memória comum, passando pelo cache). Gravar e apagar exige o modo indireto: '
+    'apague setores de 4 KiB antes e grave em páginas de até 256 bytes.\n\n'
+    'Velocidade: a QUADSPI do H743 chega a 133 MHz (DS12110), mas o limite real depende da Flash, do comando e das trilhas; comece '
+    'com o divisor de clock alto e suba. Diferente do SPI, não é um barramento para vários periféricos: cada banco atende uma '
+    'memória (os dois bancos juntos formam o modo Dual-Flash de 8 bits).'
+)
+
+
+def migrate_to_6(con: sqlite3.Connection) -> None:
+    con.execute("ALTER TABLE glossary ADD COLUMN aliases TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(aliases))")
+    con.execute('ALTER TABLE glossary ADD COLUMN figure TEXT')
+    con.execute('ALTER TABLE glossary ADD COLUMN figure_caption TEXT')
+    con.execute(
+        """UPDATE glossary SET term = 'QSPI', meaning = ?, short = ?, detail = ?, example = ?, aliases = ?, figure = ?, figure_caption = ?
+           WHERE term = 'Quad-SPI'""",
+        ('Quad Serial Peripheral Interface · SPI de quatro linhas de dados (Quad-SPI, QUADSPI)',
+         'Versão do SPI que usa quatro linhas de dados ao mesmo tempo para ler e gravar memória Flash externa até 4× mais rápido. '
+         'No STM32 ela também deixa o programa ler, e até executar código, direto da Flash externa.',
+         QSPI_DETAIL,
+         'H743 WeAct: Flash PY25Q64HA de 8 MB no QUADSPI banco 1 — CLK PB2, NCS PB6, IO0 PD11, IO1 PD12, IO2 PE2 e IO3 PD13 '
+         '(esses pinos também saem nos headers). Mapeada em 0x9000 0000, guarda imagens e fontes do display ou código. '
+         'A H7R3 usa o XSPI no mesmo papel.',
+         json.dumps(['Quad-SPI', 'QUADSPI', 'Quad SPI']),
+         'assets/glossary/qspi.svg',
+         'Em cima, a diferença de ligação entre SPI e QSPI, com os pinos da Flash QSPI da H743. Embaixo, uma leitura EBh clock a '
+         'clock: instrução em uma linha, endereço, modo, dummy e dados em quatro linhas.'))
+    con.execute(
+        "UPDATE glossary SET figure = ?, figure_caption = ? WHERE term = 'SPI'",
+        ('assets/glossary/spi.svg',
+         'Barramento com um controlador e dois periféricos (SCK, MOSI e MISO compartilhados, um CS para cada), usando os pinos da '
+         'Flash SPI da H743; embaixo, um byte trocado no modo 0 e a tabela dos quatro modos CPOL/CPHA.'))
+
+
+MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

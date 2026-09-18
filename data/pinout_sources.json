@@ -25,5 +25,14 @@
     "credit": "WeAct Studio",
     "license": "Documentação do fabricante da placa",
     "note": "Render oficial da placa H7R3 com os nomes dos pinos."
+  },
+  {
+    "file": "assets/pinouts/sources/weact-h743-boardshape.png",
+    "sha256": "3b4c0d27d461adc16f7f693d3709ecb39c7b0cb0a599361d2452d95e99b5b8e8",
+    "retrieved": "2026-09-17",
+    "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Images/BoardShape.png",
+    "credit": "WeAct Studio",
+    "license": "Documentação do fabricante da placa",
+    "note": "Desenho mecânico da MiniSTM32H7xx (40,64 × 66,88 mm); referência de posição para os desenhos da H743."
   }
 ]

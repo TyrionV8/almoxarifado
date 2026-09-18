@@ -327,6 +327,14 @@ dialog p { margin: 14px 0; line-height: 1.8; }
 .term-lead p, .term-detail-grid p { margin: 0 !important; line-height: 1.75 !important; }
 .term-detail-grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 13px; }
 .term-detail-grid > section { padding: 17px; border: 1px solid var(--line); border-radius: 7px; }
+.term-detail-grid.long { grid-template-columns: 1fr; }
+.term-detail-grid.long p + p { margin-top: 11px !important; }
+.term-aliases { margin: 4px 0 0 !important; color: var(--muted, #5b6b63); font-size: 12.5px; line-height: 1.4 !important; }
+dialog:has(.term-figure) { width: min(1040px, 96vw); }
+.term-figure { margin: 0 0 16px; padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.term-figure a { display: block; cursor: zoom-in; }
+.term-figure img { display: block; width: 100%; height: auto; }
+.term-figure figcaption { margin-top: 8px; color: #4b5d54; font-size: 12.5px; line-height: 1.55; }
 .term-example { background: var(--blue-soft); border-color: #bcd0fb !important; }
 .term-reading { margin-top: 13px; padding: 17px 19px; border: 1px solid #f1d58a; border-radius: 7px; background: var(--amber-soft); }
 .term-reading ul { margin: 9px 0 0; padding-left: 20px; color: #5f4700; }

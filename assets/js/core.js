@@ -27,8 +27,9 @@ function loadCatalog(catalog) {
   C = catalog;
   window.CATALOG = catalog;
   terms = new Map(C.glossary.map(t => [t.term, t]));
-  termByLowerName = new Map(C.glossary.map(t => [t.term.toLowerCase(), t.term]));
-  const names = [...terms.keys()].sort((a, b) => b.length - a.length);
+  // Sinônimos (aliases) apontam para o termo principal: "Quad-SPI" e "QUADSPI" abrem QSPI.
+  termByLowerName = new Map(C.glossary.flatMap(t => [t.term, ...(t.aliases || [])].map(name => [name.toLowerCase(), t.term])));
+  const names = [...termByLowerName.keys()].sort((a, b) => b.length - a.length);
   termPattern = new RegExp('(?<![\\w])(' + names.map(escapeRegExp).join('|') + ')(?![\\w])', 'gi');
   componentById = new Map(C.components.map(c => [c.id, c]));
   familyById = new Map(C.families.map(f => [f.id, f]));

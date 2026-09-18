@@ -20,11 +20,15 @@ function termModal(name) {
       <span class="category-label">${esc(category.icon)} ${esc(category.name)}</span>
       <div class="eyebrow">DOCUMENTAÇÃO DE BANCADA</div>
       <h2>${esc(t.term)}</h2>
+      ${t.aliases?.length ? `<p class="term-aliases">Também escrito: ${t.aliases.map(esc).join(' · ')}</p>` : ''}
       <p class="term-meaning">${esc(t.meaning)}</p>
     </div>
     <section class="term-lead"><h3>Em palavras simples</h3><p>${esc(t.short)}</p></section>
-    <div class="term-detail-grid">
-      <section><h3>Como funciona e como interpretar</h3><p>${esc(t.detail)}</p></section>
+    ${t.figure ? `<figure class="term-figure"><a href="${esc(t.figure)}" target="_blank" title="Abrir a figura em tamanho real">
+      <img src="${esc(t.figure)}" alt="${esc(t.figure_caption || t.term)}"></a>
+      <figcaption>${esc(t.figure_caption || '')}</figcaption></figure>` : ''}
+    <div class="term-detail-grid${t.detail.includes('\n\n') ? ' long' : ''}">
+      <section><h3>Como funciona e como interpretar</h3>${t.detail.split(/\n\n+/).map(p => `<p>${esc(p)}</p>`).join('')}</section>
       <section class="term-example"><h3>Exemplo no seu acervo</h3><p>${esc(t.example)}</p></section>
     </div>
     <section class="term-reading"><h3>Checklist para usar esta informação</h3>

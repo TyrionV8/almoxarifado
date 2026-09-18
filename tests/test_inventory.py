@@ -40,7 +40,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_inventory_scope_and_stock(self):
         parts = self.data['components']
-        self.assertEqual(len(parts), 10)
+        self.assertEqual(len(parts), 11)
         self.assertEqual(len(self.data['tools']), 3)
         for part in parts:
             stock = part['stock']
@@ -59,10 +59,19 @@ class InventoryTests(unittest.TestCase):
 
     def test_database_driven_interface_content(self):
         glossary = {t['term'] for t in self.data['glossary']}
-        self.assertEqual(len(glossary), 94)
+        self.assertEqual(len(glossary), 98)
         categories = {c['id'] for c in self.data['glossary_categories']}
         self.assertTrue(all(t['category_id'] in categories for t in self.data['glossary']))
         self.assertTrue(all(len(c['tips']) == 3 for c in self.data['glossary_categories']))
+        names = [n.lower() for t in self.data['glossary'] for n in [t['term'], *t['aliases']]]
+        self.assertEqual(len(names), len(set(names)), 'sinônimo repetido ou igual a outro termo')
+        figures = {t['term']: t['figure'] for t in self.data['glossary'] if t['figure']}
+        self.assertEqual(sorted(figures), ['QSPI', 'SPI'])
+        for term, figure in figures.items():
+            self.assertTrue((ROOT / figure).read_text().lstrip().startswith('<svg'), term)
+        qspi = next(t for t in self.data['glossary'] if t['term'] == 'QSPI')
+        self.assertIn('Quad-SPI', qspi['aliases'])
+        self.assertIn('0x9000 0000', qspi['detail'])
         self.assertEqual(len(self.data['table_columns']), 23)
         groups = {g['id'] for g in self.data['column_groups']}
         for column in self.data['table_columns']:
@@ -87,6 +96,9 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(p['g474']['ram'], 131072)
         self.assertIn('64 KiB', p['h7r3']['flash'])
         self.assertEqual(p['h7r3']['dac'], 'Não')
+        self.assertIn('STM32H743VIT6', p['h743']['package'])
+        self.assertEqual((p['h743']['clock'], p['h743']['ram']), (480, 1081344))
+        self.assertIn('2 MiB', p['h743']['flash'])
 
     def test_published_performance_metrics(self):
         p = self.parts
@@ -94,7 +106,8 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual(p[component_id]['mips_peak'], 5)
         self.assertEqual(p['uno']['mips_peak'], 16)
         self.assertEqual(p['nano']['mips_peak'], 16)
-        expected = {'bluepill': (108.26, 90, 1.0), 'blackpill': (339, 125, 1.39), 'g474': (569, 213, 2.37), 'h7r3': (3196, 1284, 14.27)}
+        expected = {'bluepill': (108.26, 90, 1.0), 'blackpill': (339, 125, 1.39), 'g474': (569, 213, 2.37), 'h7r3': (3196, 1284, 14.27),
+                    'h743': (2424, 1027, 11.41)}
         for component_id, (coremark, dmips, relative) in expected.items():
             self.assertEqual(p[component_id]['coremark'], coremark)
             self.assertEqual(p[component_id]['dmips'], dmips)
@@ -164,6 +177,26 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(h7['pinout'], files[0])
         for p in h7['pinouts']:
             self.assertTrue((ROOT / 'assets/pinouts' / p['file']).read_bytes().startswith(PNG), p['file'])
+
+    def test_h743_pinout_versions(self):
+        # Mesma organização da H7R3; pino do CI = número LQFP100; geradas por scripts/make_h743_pinouts.py (docs/H743-PINOUT.md).
+        h743 = self.parts['h743']
+        files = [f'h743-pinout-{n}.png' for n in ('simple', 'full', 'simple-left', 'simple-right', 'full-left', 'full-right', 'full-extra')]
+        self.assertEqual([p['file'] for p in h743['pinouts']], files)
+        self.assertEqual(sorted(p.name for p in (ROOT / 'assets/pinouts').glob('h743-pinout-*.png')), sorted(files))
+        self.assertEqual(h743['pinout'], files[0])
+        for p in h743['pinouts']:
+            self.assertTrue((ROOT / 'assets/pinouts' / p['file']).read_bytes().startswith(PNG), p['file'])
+
+    def test_h743_header_map(self):
+        # Headers conforme o esquema WeAct STM32H7xx V1.2 (P1 e P2, 2 × 22) e números LQFP100 do DS12110.
+        import make_h743_pinouts as gen
+        self.assertEqual((len(gen.P1), len(gen.P2)), (44, 44))
+        self.assertEqual(gen.P1[:4] + gen.P1[-2:], ['GND', '5V', 'PE1', 'PE0', 'PB13', 'PB12'])
+        self.assertEqual(gen.P2[:4] + gen.P2[-4:], ['GND', '3V3', 'PE2', 'PE3', '3V3', '5V', 'GND', 'GND'])
+        gpio = [n for n in gen.P1 + gen.P2 if n not in gen.POWER]
+        self.assertEqual((len(gpio), len(set(gpio))), (76, 76))
+        self.assertIn('76 nos headers', self.parts['h743']['gpio'])
 
     def test_sql_roundtrip(self):
         restored = sqlite3.connect(':memory:')

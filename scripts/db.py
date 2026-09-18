@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data'
 DATABASE = DATA / 'inventory.sqlite'
 SOURCES = DATA / 'sources.json'
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 6
 MAX_MOVEMENT_QUANTITY = 1000
 MAX_NOTE_LENGTH = 500
 
@@ -129,6 +129,10 @@ def build_catalog(con: sqlite3.Connection) -> dict:
     for category in glossary_categories:
         category['tips'] = json.loads(category['tips'])
 
+    glossary = rows(con, 'SELECT * FROM glossary ORDER BY term')
+    for term in glossary:
+        term['aliases'] = json.loads(term['aliases'])
+
     return {
         'schema': SCHEMA_VERSION,
         'categories': rows(con, 'SELECT * FROM categories ORDER BY id'),
@@ -140,7 +144,7 @@ def build_catalog(con: sqlite3.Connection) -> dict:
         'table_columns': rows(con, 'SELECT * FROM table_columns ORDER BY position'),
         'processing_classes': rows(con, 'SELECT * FROM processing_classes ORDER BY rank'),
         'glossary_categories': glossary_categories,
-        'glossary': rows(con, 'SELECT * FROM glossary ORDER BY term'),
+        'glossary': glossary,
         'pin_guides': rows(con, 'SELECT * FROM pin_guides ORDER BY guide, position'),
         'tools': rows(con, 'SELECT * FROM tools ORDER BY rowid'),
         'sources': json.loads(SOURCES.read_text()),
