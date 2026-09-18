@@ -749,8 +749,40 @@ def migrate_to_13(con: sqlite3.Connection) -> None:
                 'host), as cinco etapas da enumeração, as velocidades do USB 2.0 e as classes de dispositivo mais comuns.')
 
 
+def migrate_to_14(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'FDCAN', aliases=('CAN FD',),
+        meaning='Flexible Data-rate CAN · CAN com taxa de dados flexível',
+        short='Controlador da rede CAN, o barramento robusto de carros e máquinas, compatível com o CAN clássico e com o CAN FD, que '
+              'manda até 64 bytes por mensagem com a parte de dados em velocidade maior.',
+        detail=(
+            'O CAN liga vários nós num único par trançado, CANH e CANL, terminado com 120 Ω em cada ponta. O microcontrolador fala com '
+            'o barramento por um transceptor, porque o FDCAN só tem TX e RX em nível lógico. Não há mestre nem endereço de destino: '
+            'cada mensagem tem um identificador (11 bits no formato padrão, 29 no estendido), e cada nó decide pelos filtros se ela '
+            'lhe interessa.\n\n'
+            'O sinal é diferencial. Com os dois fios na mesma tensão, o barramento está recessivo (bit 1); quando um transceptor '
+            'puxa CANH para cima e CANL para baixo, ele fica dominante (bit 0), e um único nó dominante vence todos os recessivos. É '
+            'assim que funciona a arbitragem sem colisão destrutiva: se dois nós começam juntos, cada um lê o barramento enquanto '
+            'envia o ID; quem manda 1 e lê 0 perde e tenta depois, então o menor ID tem prioridade. O receptor confirma com ACK, e '
+            'CRC, bit stuffing e contadores de erro tiram da rede, sozinhos, um nó defeituoso (bus-off).\n\n'
+            'O CAN clássico (2.0A/B) vai até 1 Mbit/s e 8 bytes de dados. O CAN FD mantém a arbitragem na taxa nominal e, depois do '
+            'bit BRS, troca para uma taxa maior só na fase de dados (tipicamente 2 a 5 Mbit/s, até 8 Mbit/s com bons transceptores), '
+            'com até 64 bytes por mensagem e CRC mais forte. Nós clássicos e FD só dividem o barramento se ninguém enviar quadros FD. '
+            'Os tempos de bit (prescaler, segmentos e ponto de amostragem, perto de 87,5 %) precisam ser iguais em todos os nós.\n\n'
+            'O STM32H743 tem dois FDCAN (FDCAN1 e FDCAN2), compatíveis com ISO 11898-1 e CAN FD 1.0, que dividem 10 KiB de RAM de '
+            'mensagens para filtros, FIFOs e buffers, e uma unidade opcional de calibração de clock. O FDCAN1 também faz TT-CAN (ISO '
+            '11898-4), a comunicação disparada por tempo. Use o cristal como base do clock do CAN. Transceptores de 3,3 V '
+            '(SN65HVD230, TJA1051T/3) ligam direto; os de 5 V, como o MCP2551, precisam de adaptação de nível no RX.'),
+        example='H743 WeAct: FDCAN1 em PD0 (RX) e PD1 (TX) e FDCAN2 em PB12 (RX) e PB13 (TX), livres nos headers; falta só o '
+                'transceptor. A G474 também tem FDCAN; a BluePill F103 tem CAN 2.0B clássico, que divide memória e pinos com o USB; a '
+                'BlackPill F411 não tem CAN.',
+        figure='assets/glossary/fdcan.svg',
+        caption='Rede CAN com a H743 (FDCAN1 em PD0/PD1), transceptor SN65HVD230 e terminação de 120 Ω, os níveis recessivo e '
+                'dominante, a arbitragem por ID entre dois nós e a comparação entre os quadros CAN 2.0 e CAN FD.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
-              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13}
+              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
