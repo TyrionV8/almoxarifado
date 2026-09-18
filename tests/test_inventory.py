@@ -69,7 +69,7 @@ class InventoryTests(unittest.TestCase):
         # Termos documentados no modelo de QSPI: figura e explicação em vários parágrafos.
         documented = ['QSPI', 'SPI', 'USART', 'UART', 'LPUART']
         self.assertEqual(sorted(figures), sorted(documented))
-        for term in documented[2:] + ['QSPI']:
+        for term in documented:
             detail = next(t['detail'] for t in self.data['glossary'] if t['term'] == term)
             self.assertGreaterEqual(detail.count('\n\n'), 3, term)
         for term, figure in figures.items():

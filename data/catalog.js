@@ -1764,13 +1764,13 @@ window.CATALOG = {
     {
       "aliases": [],
       "category_id": "comunicacao",
-      "detail": "SCK sincroniza os bits; MOSI e MISO transportam dados; CS seleciona o periférico. Polaridade e fase devem coincidir nos dois lados.",
-      "example": "No TCC, SPI2 da BlackPill atende ao ADS1256.",
+      "detail": "Sinais: SCK é o clock, sempre gerado pelo controlador; MOSI leva dados do controlador ao periférico e MISO traz de volta (nomes novos: COPI/CIPO, ou SDO/SDI vistos de cada chip); CS, também chamado NSS ou SS, seleciona o periférico e quase sempre é ativo em nível baixo. A cada pulso de clock sai um bit por MOSI e entra um bit por MISO ao mesmo tempo: o SPI é full-duplex, e para ler é preciso enviar alguma coisa (bytes \"dummy\") só para gerar o clock.\n\nModo: CPOL diz se o clock parado fica em 0 ou 1, e CPHA diz se o dado é lido na primeira ou na segunda borda; juntos formam os modos 0 a 3. Os dois lados precisam usar o mesmo modo, a mesma ordem de bits (quase sempre o mais significativo primeiro) e um clock que o periférico aceite. Não há endereço nem confirmação de recebimento: com o modo errado, os bytes chegam deslocados ou todos iguais (0x00 ou 0xFF), sem nenhum aviso de erro.\n\nVários periféricos compartilham SCK, MOSI e MISO, e cada um tem o seu CS; só o selecionado aciona MISO, os outros deixam a linha em alta impedância. CS por software (um GPIO comum) é o jeito mais flexível; o NSS por hardware do STM32 atende bem um único periférico. Para mais velocidade existem variantes com mais linhas de dados, Dual e Quad SPI (veja QSPI), usadas por memórias Flash.\n\nO STM32H743 tem seis SPI (SPI1 a SPI6), até 150 Mbit/s, quadros de 4 a 16 bits, FIFO, CRC por hardware e DMA; SPI1, SPI2 e SPI3 também fazem I2S (áudio), e o SPI6 fica no domínio D3, de baixo consumo. Com fios de protoboard, 1 a 10 MHz já é bastante; acima disso, fios curtos e um GND ao lado de cada sinal fazem diferença.",
+      "example": "H743 WeAct: SPI2 livre nos headers em PB13 (SCK), PB14 (MISO), PB15 (MOSI) e PB12 (NSS) — os mesmos pinos que o TCC usa na BlackPill para o ADS1256. Na própria placa, a flash SPI de 8 MB está no SPI1 (PB3, PB4, PD7, CS em PD6) e o display no SPI4 (PE12 e PE14).",
       "figure": "assets/glossary/spi.svg",
       "figure_caption": "Barramento com um controlador e dois periféricos (SCK, MOSI e MISO compartilhados, um CS para cada), usando os pinos da Flash SPI da H743; embaixo, um byte trocado no modo 0 e a tabela dos quatro modos CPOL/CPHA.",
       "meaning": "Serial Peripheral Interface · interface periférica serial",
       "position": 7,
-      "short": "Barramento síncrono com clock e seleção do dispositivo.",
+      "short": "Barramento síncrono de quatro fios (clock, dados de ida, dados de volta e seleção) em que o controlador gera o clock e fala com um periférico por vez: simples, rápido e full-duplex.",
       "term": "SPI"
     },
     {
@@ -2358,7 +2358,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 9,
+  "schema": 10,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
