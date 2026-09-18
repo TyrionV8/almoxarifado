@@ -683,8 +683,42 @@ def migrate_to_11(con: sqlite3.Connection) -> None:
                 'canal, as contas de BCLK e MCK a 48 kHz e a comparação entre I2S e SAI no H743.')
 
 
+def migrate_to_12(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'I2C', aliases=('I²C', 'IIC', 'TWI'),
+        meaning='Inter-Integrated Circuit · barramento entre circuitos',
+        short='Barramento de dois fios (SDA para dados, SCL para clock) em que vários sensores e displays dividem as mesmas linhas, '
+              'cada um com o seu endereço: lento, mas econômico em pinos.',
+        detail=(
+            'As duas linhas são de dreno aberto: nenhum chip força o nível 1, todos só puxam para 0, e resistores de pull-up levam a '
+            'linha de volta a 1. Assim vários dispositivos dividem o fio sem curto-circuito, o receptor responde (ACK) na mesma linha '
+            'e um periférico lento pode segurar SCL em 0 para pedir tempo (clock stretching). Sem pull-up nada funciona; muitos '
+            'módulos já trazem os seus, e vários em paralelo baixam a resistência total.\n\n'
+            'Toda conversa começa com START (SDA desce com SCL em 1) e termina com STOP (SDA sobe com SCL em 1). Depois do START vem '
+            'o endereço de 7 bits e um bit de direção (0 = escrever, 1 = ler); o dispositivo com aquele endereço responde ACK puxando '
+            'SDA para 0 no nono clock. Para ler um registrador, o controlador escreve o número do registrador, faz um repeated START '
+            'e lê os bytes, respondendo NACK no último. Sem ACK no endereço, quase sempre o endereço está errado, os fios estão '
+            'trocados ou falta pull-up.\n\n'
+            'Velocidades: Standard 100 kbit/s, Fast 400 kbit/s e Fast-mode Plus 1 Mbit/s. O limite real é o tempo de subida: a '
+            'capacitância do barramento (fios e chips, no máximo 400 pF) contra a resistência de pull-up. Resistor alto demais deixa '
+            'a borda lenta; baixo demais passa da corrente que o pino consegue drenar. Fios longos pedem velocidade menor ou um '
+            'extensor I2C. Dois dispositivos com o mesmo endereço exigem um multiplexador (TCA9548A) ou um pino de endereço '
+            'diferente.\n\n'
+            'O STM32H743 tem quatro I2C (I2C1 a I2C4), compatíveis com a especificação rev. 5: mestre, escravo e multimestre, '
+            'endereços de 7 e 10 bits, filtros de ruído analógico e digital, SMBus/PMBus, DMA e clock independente, o que permite '
+            'acordar do Stop ao reconhecer o próprio endereço. Fast-mode Plus exige os pinos marcados FT_f, com saída de 20 mA. O I2C4 '
+            'fica no domínio D3.'),
+        example='H743 WeAct: I2C2 livre em PB10 (SCL) e PB11 (SDA), ambos FT_f. O I2C1 em PB8/PB9 é o barramento de configuração da '
+                'câmera (SCCB) e já tem pull-ups de 4,7 kΩ na placa: outros sensores podem entrar nele se o endereço não coincidir '
+                '(a OV5640 usa 0x3C, o mesmo de muitos OLED SSD1306). No robô equilibrista, o Nano lê o MPU6050 (0x68) por I2C em '
+                'A4/A5.',
+        figure='assets/glossary/i2c.svg',
+        caption='Barramento I2C da H743 (I2C2 em PB10/PB11) com pull-ups e três sensores, a leitura do registrador WHO_AM_I do '
+                'MPU6050 passo a passo, a forma de onda de START, bit, ACK e STOP e a relação entre velocidade e resistor.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
-              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11}
+              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
