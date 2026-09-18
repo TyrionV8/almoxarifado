@@ -652,8 +652,39 @@ def migrate_to_10(con: sqlite3.Connection) -> None:
         figure='assets/glossary/spi.svg', caption=caption)
 
 
+def migrate_to_11(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'I2S', category='comunicacao', after='SPI', aliases=('I²S', 'IIS'),
+        meaning='Inter-IC Sound · barramento de áudio digital entre chips',
+        short='Interface serial síncrona feita para transportar áudio digital estéreo, em fluxo contínuo, entre microcontrolador, '
+              'DACs, amplificadores, microfones e codecs.',
+        detail=(
+            'Três sinais formam o barramento: CK (ou BCLK) marca cada bit; WS (ou LRCLK) diz de qual canal é a amostra, 0 para o '
+            'esquerdo e 1 para o direito, e troca uma vez por amostra, então sua frequência é a própria taxa de amostragem (Fs); SD '
+            'leva os dados, uma linha por sentido. Um quarto sinal, opcional, é o MCK (master clock), normalmente 256 × Fs, que '
+            'alimenta o conversor de alguns codecs e DACs.\n\n'
+            'Não há endereço nem pacote: é um fluxo contínuo, amostra após amostra. No padrão Philips o bit mais significativo sai um '
+            'clock depois da troca de WS; também existem os formatos justificado à esquerda (MSB junto com a troca de WS), '
+            'justificado à direita e PCM/TDM. Os dois lados precisam combinar o formato, o tamanho da palavra (16, 24 ou 32 bits) e '
+            'quem é o mestre que gera CK e WS.\n\n'
+            'As contas definem os clocks: BCLK = Fs × bits por canal × 2 canais. A 48 kHz com 16 bits, BCLK = 1,536 MHz; com quadros '
+            'de 32 bits, 3,072 MHz; MCK = 256 × 48 kHz = 12,288 MHz. Como o áudio exige frequência exata, o clock do I2S vem de um PLL '
+            'dedicado (no H743, PLL2 ou PLL3, que têm ajuste fracionário); erro de clock vira deriva, estalos ou som desafinado. DMA '
+            'em modo circular com buffer duplo é o jeito normal de manter o som contínuo.\n\n'
+            'No STM32H743, SPI1, SPI2 e SPI3 também funcionam como I2S: mestre ou escravo, simplex, 16 ou 32 bits, de 8 a 192 kHz, '
+            'com FIFO e DMA. Para mais canais existem os quatro SAI (Serial Audio Interface), com dois blocos cada, TDM, entrada PDM '
+            'para microfones digitais e saída S/PDIF. Não confunda com I2C: o nome é parecido, mas I2C é um barramento de controle '
+            'com endereços. Codecs costumam usar I2C para configurar e I2S para o som.'),
+        example='H743 WeAct: I2S2 livre nos headers em PB13 (CK), PB12 (WS), PB15 (SDO, saída) e PB14 (SDI, entrada) — basta para um '
+                'amplificador MAX98357A ou um microfone INMP441, que não usam MCK (o MCK do I2S2 fica em PC6, ocupado pela câmera). '
+                'A BlackPill F411 também tem I2S; Arduino Uno e Nano não têm.',
+        figure='assets/glossary/i2s.svg',
+        caption='O I2S2 da H743 ligado a um amplificador MAX98357A e a um microfone INMP441, um quadro estéreo Philips de 16 bits por '
+                'canal, as contas de BCLK e MCK a 48 kHz e a comparação entre I2S e SAI no H743.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
-              9: migrate_to_9, 10: migrate_to_10}
+              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

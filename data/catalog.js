@@ -887,7 +887,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Controller Area Network · rede de controladores",
-      "position": 10,
+      "position": 11,
       "short": "Barramento robusto para comunicação entre dispositivos.",
       "term": "CAN"
     },
@@ -959,7 +959,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Chip Select · seleção do chip",
-      "position": 20,
+      "position": 21,
       "short": "Sinal que seleciona o dispositivo SPI.",
       "term": "CS"
     },
@@ -1019,7 +1019,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Digital Camera Interface · interface de câmera digital",
-      "position": 25,
+      "position": 26,
       "short": "Recebe imagem de sensores com barramento paralelo (DVP).",
       "term": "DCMI"
     },
@@ -1151,7 +1151,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Flexible Data-rate CAN · CAN com taxa de dados flexível",
-      "position": 11,
+      "position": 12,
       "short": "Controlador CAN com suporte a quadros CAN FD.",
       "term": "FDCAN"
     },
@@ -1295,9 +1295,24 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Inter-Integrated Circuit · barramento entre circuitos",
-      "position": 8,
+      "position": 9,
       "short": "Comunicação por duas linhas: SDA e SCL.",
       "term": "I2C"
+    },
+    {
+      "aliases": [
+        "I²S",
+        "IIS"
+      ],
+      "category_id": "comunicacao",
+      "detail": "Três sinais formam o barramento: CK (ou BCLK) marca cada bit; WS (ou LRCLK) diz de qual canal é a amostra, 0 para o esquerdo e 1 para o direito, e troca uma vez por amostra, então sua frequência é a própria taxa de amostragem (Fs); SD leva os dados, uma linha por sentido. Um quarto sinal, opcional, é o MCK (master clock), normalmente 256 × Fs, que alimenta o conversor de alguns codecs e DACs.\n\nNão há endereço nem pacote: é um fluxo contínuo, amostra após amostra. No padrão Philips o bit mais significativo sai um clock depois da troca de WS; também existem os formatos justificado à esquerda (MSB junto com a troca de WS), justificado à direita e PCM/TDM. Os dois lados precisam combinar o formato, o tamanho da palavra (16, 24 ou 32 bits) e quem é o mestre que gera CK e WS.\n\nAs contas definem os clocks: BCLK = Fs × bits por canal × 2 canais. A 48 kHz com 16 bits, BCLK = 1,536 MHz; com quadros de 32 bits, 3,072 MHz; MCK = 256 × 48 kHz = 12,288 MHz. Como o áudio exige frequência exata, o clock do I2S vem de um PLL dedicado (no H743, PLL2 ou PLL3, que têm ajuste fracionário); erro de clock vira deriva, estalos ou som desafinado. DMA em modo circular com buffer duplo é o jeito normal de manter o som contínuo.\n\nNo STM32H743, SPI1, SPI2 e SPI3 também funcionam como I2S: mestre ou escravo, simplex, 16 ou 32 bits, de 8 a 192 kHz, com FIFO e DMA. Para mais canais existem os quatro SAI (Serial Audio Interface), com dois blocos cada, TDM, entrada PDM para microfones digitais e saída S/PDIF. Não confunda com I2C: o nome é parecido, mas I2C é um barramento de controle com endereços. Codecs costumam usar I2C para configurar e I2S para o som.",
+      "example": "H743 WeAct: I2S2 livre nos headers em PB13 (CK), PB12 (WS), PB15 (SDO, saída) e PB14 (SDI, entrada) — basta para um amplificador MAX98357A ou um microfone INMP441, que não usam MCK (o MCK do I2S2 fica em PC6, ocupado pela câmera). A BlackPill F411 também tem I2S; Arduino Uno e Nano não têm.",
+      "figure": "assets/glossary/i2s.svg",
+      "figure_caption": "O I2S2 da H743 ligado a um amplificador MAX98357A e a um microfone INMP441, um quadro estéreo Philips de 16 bits por canal, as contas de BCLK e MCK a 48 kHz e a comparação entre I2S e SAI no H743.",
+      "meaning": "Inter-IC Sound · barramento de áudio digital entre chips",
+      "position": 8,
+      "short": "Interface serial síncrona feita para transportar áudio digital estéreo, em fluxo contínuo, entre microcontrolador, DACs, amplificadores, microfones e codecs.",
+      "term": "I2S"
     },
     {
       "aliases": [],
@@ -1465,7 +1480,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master In Slave Out",
-      "position": 14,
+      "position": 15,
       "short": "Linha SPI do periférico para o controlador.",
       "term": "MISO"
     },
@@ -1477,7 +1492,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Out Slave In",
-      "position": 13,
+      "position": 14,
       "short": "Linha SPI do controlador para o periférico.",
       "term": "MOSI"
     },
@@ -1501,7 +1516,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Synchronous Serial Port",
-      "position": 12,
+      "position": 13,
       "short": "Periférico de comunicação síncrona dos PICs.",
       "term": "MSSP"
     },
@@ -1573,7 +1588,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Saída de dreno aberto",
-      "position": 22,
+      "position": 23,
       "short": "Saída que puxa para baixo ou fica em alta impedância.",
       "term": "Open Drain"
     },
@@ -1609,7 +1624,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Physical Layer · camada física",
-      "position": 23,
+      "position": 24,
       "short": "Circuito que traduz sinais digitais para o meio físico.",
       "term": "PHY"
     },
@@ -1657,7 +1672,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Resistor para a alimentação positiva",
-      "position": 21,
+      "position": 22,
       "short": "Mantém uma linha em nível alto quando ninguém a aciona.",
       "term": "Pull-up"
     },
@@ -1697,7 +1712,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Receive · recepção",
-      "position": 19,
+      "position": 20,
       "short": "Sinal de entrada de dados seriais.",
       "term": "RX"
     },
@@ -1709,7 +1724,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock",
-      "position": 15,
+      "position": 16,
       "short": "Clock que sincroniza os bits da interface serial.",
       "term": "SCK"
     },
@@ -1721,7 +1736,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock Line",
-      "position": 17,
+      "position": 18,
       "short": "Linha de clock do barramento I2C.",
       "term": "SCL"
     },
@@ -1733,7 +1748,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Data",
-      "position": 16,
+      "position": 17,
       "short": "Linha de dados do barramento I2C.",
       "term": "SDA"
     },
@@ -1745,7 +1760,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Secure Digital / MultiMediaCard interface",
-      "position": 24,
+      "position": 25,
       "short": "Controlador de cartão SD em barramento de 1 ou 4 bits.",
       "term": "SDMMC"
     },
@@ -1829,7 +1844,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Transmit · transmissão",
-      "position": 18,
+      "position": 19,
       "short": "Sinal de saída de dados seriais.",
       "term": "TX"
     },
@@ -1913,7 +1928,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Universal Serial Bus · barramento serial universal",
-      "position": 9,
+      "position": 10,
       "short": "Interface de comunicação e alimentação.",
       "term": "USB"
     },
@@ -2358,7 +2373,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 10,
+  "schema": 11,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
