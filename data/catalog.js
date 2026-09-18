@@ -1925,15 +1925,17 @@ window.CATALOG = {
       "term": "USART"
     },
     {
-      "aliases": [],
+      "aliases": [
+        "USB OTG"
+      ],
       "category_id": "comunicacao",
-      "detail": "A função pode ser dispositivo ou host. FS significa Full Speed (12 Mbit/s), HS High Speed (480 Mbit/s). O chip e a placa precisam oferecer o circuito necessário.",
-      "example": "No Uno clássico a USB passa por uma ponte; no F411 o MCU possui USB nativa.",
-      "figure": null,
-      "figure_caption": null,
+      "detail": "Os dados trafegam num par diferencial, D+ e D−: o que conta é a diferença entre as duas linhas, o que torna o sinal resistente a ruído. VBUS leva 5 V do host para o dispositivo e GND fecha o circuito. Em full-speed o dispositivo se anuncia ligando um resistor de 1,5 kΩ entre D+ e 3,3 V (o STM32 tem esse pull-up interno). No conector USB-C, os pinos CC com 5,1 kΩ para GND dizem à fonte \"sou dispositivo, pode mandar 5 V\"; sem eles, carregadores USB-C não ligam o VBUS.\n\nO host manda em tudo: ao conectar, ele reseta o barramento, lê os descritores (VID, PID, classe, endpoints), dá um endereço e carrega o driver da classe. Depois consulta cada endpoint periodicamente (quadros de 1 ms em full-speed); o dispositivo nunca fala sem ser perguntado. Classes padronizadas dispensam driver próprio: CDC aparece como porta serial, HID como teclado ou mouse, MSC como pendrive, DFU como gravador, Audio e UVC para som e vídeo.\n\nVelocidades do USB 2.0: low-speed 1,5 Mbit/s, full-speed 12 Mbit/s e high-speed 480 Mbit/s. O controlador precisa de uma PHY, o circuito que fala eletricamente no par, e de um clock preciso de 48 MHz, vindo do cristal por PLL ou de um oscilador interno corrigido pelo próprio USB. OTG (On-The-Go) quer dizer que o mesmo periférico pode ser host ou dispositivo; como host, a placa precisa fornecer 5 V ao VBUS com corrente e proteção suficientes.\n\nO STM32H743 tem dois controladores USB 2.0 OTG: o OTG_HS (OTG-HS1), que chega a 480 Mbit/s só com uma PHY ULPI externa, e o OTG_FS (OTG-HS2), só full-speed. Os dois têm PHY full-speed interna, FIFO de 4 KiB, 9 endpoints e DMA, e podem usar o HSI48 corrigido pelo CRS em vez de cristal. O bootloader de fábrica aceita gravação por DFU. Sem ponte USB–UART, o próprio firmware implementa a classe, por exemplo CDC com a biblioteca USB Device da ST ou com o TinyUSB.",
+      "example": "H743 WeAct: USB-C no OTG_FS (PA11 D−, PA12 D+), com 5,1 kΩ nos CC e VBUS pelo diodo B5819; segurando B0 ao ligar, aparece como DFU para gravação. Um segundo USB full-speed pode sair do OTG_HS em PB14/PB15. Uno e Nano usam uma ponte (ATmega16U2, CH340 ou FT232) porque o ATmega328P não tem USB; BluePill e BlackPill têm USB nativo.",
+      "figure": "assets/glossary/usb.svg",
+      "figure_caption": "O circuito do USB-C da H743 (D+ e D− em PA12/PA11, CC com 5,1 kΩ, VBUS pelo diodo B5819 e a ponte SB6 para modo host), as cinco etapas da enumeração, as velocidades do USB 2.0 e as classes de dispositivo mais comuns.",
       "meaning": "Universal Serial Bus · barramento serial universal",
       "position": 10,
-      "short": "Interface de comunicação e alimentação.",
+      "short": "Interface em que um host (o computador) controla tudo e os dispositivos respondem; transporta dados e energia, e o mesmo conector serve para gravar, depurar e conversar com o PC.",
       "term": "USB"
     },
     {
@@ -2377,7 +2379,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 12,
+  "schema": 13,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
