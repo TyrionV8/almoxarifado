@@ -813,9 +813,40 @@ def migrate_to_15(con: sqlite3.Connection) -> None:
                 'bloco de 512 bytes com o comando CMD17, as etapas de inicialização e velocidades e os tipos de cartão.')
 
 
+def migrate_to_16(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'Ethernet', category='comunicacao', after='FDCAN', aliases=('ETH', 'LAN'),
+        meaning='Ethernet · rede local com fio (IEEE 802.3)',
+        short='A rede com fio de computadores e roteadores: com um PHY e um conector RJ45, o microcontrolador entra na rede local e '
+              'fala TCP/IP, HTTP ou MQTT a 10 ou 100 Mbit/s.',
+        detail=(
+            'O Ethernet é dividido em partes. O MAC, dentro do microcontrolador, monta e confere os quadros: endereços de 6 bytes, '
+            'tipo, dados de 46 a 1500 bytes e CRC. O PHY, um chip externo, transforma esses bits no sinal analógico do cabo e '
+            'negocia velocidade e duplex com o outro lado. Entre os dois vai a interface MII (17 sinais) ou RMII (9 sinais a 50 MHz), '
+            'e o PHY é configurado pelos fios de gerência MDIO/MDC. Depois do PHY vêm o transformador de isolação e o conector RJ45, '
+            'muitas vezes num único componente.\n\n'
+            'No cabo de par trançado, o 100BASE-TX usa um par para transmitir e outro para receber, até 100 m. O transformador isola '
+            'eletricamente os dois equipamentos, por isso o PHY nunca é ligado direto no conector. Cada placa precisa de um endereço '
+            'MAC único: o STM32 não traz um gravado de fábrica, então o firmware gera um, por exemplo a partir do ID único de 96 bits '
+            'do chip, ou usa um de uma faixa registrada.\n\n'
+            'O MAC só entrega quadros; o resto é software. Uma pilha TCP/IP como a LwIP cuida de ARP, IP, DHCP, TCP e UDP, e por cima '
+            'dela vêm HTTP, MQTT, Modbus TCP ou sockets. Isso ocupa dezenas de KiB de RAM em buffers e exige um laço de rede ou um '
+            'RTOS para processar os pacotes a tempo; o STM32CubeMX gera o esqueleto com LwIP.\n\n'
+            'O STM32H743 tem um MAC IEEE 802.3 de 10 e 100 Mbit/s com MII ou RMII, DMA próprio com descritores, FIFOs de 2 KiB, '
+            'filtros de endereço e multicast, VLAN, CRC por hardware e relógio PTP (IEEE 1588) para sincronizar o tempo pela rede. O '
+            'DMA do Ethernet não alcança a DTCM: descritores e buffers ficam na SRAM do domínio D2, com a região marcada no MPU, como '
+            'fazem os exemplos da ST (confira no RM0433). Em RMII, o módulo PHY ou um oscilador fornece os 50 MHz em REF_CLK.'),
+        example='H743 WeAct: os 9 sinais RMII estão nos headers — REF_CLK PA1, MDIO PA2, MDC PC1, CRS_DV PA7, RXD0/RXD1 PC4/PC5, '
+                'TX_EN PB11 e TXD0/TXD1 PB12/PB13 —, então um módulo LAN8720 liga com fios curtos; PA7 também é o PWDN da câmera '
+                '(ponte SB1). A H7R3 também tem MAC Ethernet (só RMII no Z8J6); as outras placas do acervo não têm.',
+        figure='assets/glossary/ethernet.svg',
+        caption='A cadeia do Ethernet do MAC do H743 ao conector RJ45 (RMII, PHY LAN8720 e transformador), os 9 sinais RMII '
+                'disponíveis nos headers da H743, a estrutura de um quadro Ethernet e a pilha de software acima do MAC.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15}
+              15: migrate_to_15, 16: migrate_to_16}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

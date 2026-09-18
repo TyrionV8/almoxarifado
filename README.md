@@ -25,7 +25,7 @@ O navegador abre o almoxarifado com a aba **Histórico** liberada: escolha o que
 - **11 modelos:** quatro PICs, Uno, Nano, BluePill, BlackPill e as WeAct G474 Long, H7R3 e H743 (a mais nova, com display, câmera e microSD). A quantidade aparece como **disponíveis/total** e cada item tem seu histórico. As unidades PIC são estimativas do Obsidian.
 - **Compare:** marque os componentes na tabela; as diferenças aparecem destacadas.
 - **Explore:** expanda uma linha para ver especificações, aplicação, pinagem e datasheet.
-- **Entenda:** 100 termos organizados por assunto, com nome completo das siglas, explicação simples, funcionamento, exemplo do acervo e cuidados de uso. A aba **Documentação** também traz esquemas clicáveis e um guia para interpretar fichas técnicas. Funciona por mouse, teclado e toque.
+- **Entenda:** 101 termos organizados por assunto, com nome completo das siglas, explicação simples, funcionamento, exemplo do acervo e cuidados de uso. A aba **Documentação** também traz esquemas clicáveis e um guia para interpretar fichas técnicas. Funciona por mouse, teclado e toque.
 - **Consulte offline:** documentos originais e leitura comentada incluídos no repositório. Links para as fontes são opcionais e precisam de internet.
 - **Conecte:** fichas do CH343P, ST-Link V2 e PICkit 3.
 

@@ -959,7 +959,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Chip Select · seleção do chip",
-      "position": 21,
+      "position": 22,
       "short": "Sinal que seleciona o dispositivo SPI.",
       "term": "CS"
     },
@@ -1019,7 +1019,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Digital Camera Interface · interface de câmera digital",
-      "position": 26,
+      "position": 27,
       "short": "Recebe imagem de sensores com barramento paralelo (DVP).",
       "term": "DCMI"
     },
@@ -1142,6 +1142,21 @@ window.CATALOG = {
       "position": 5,
       "short": "Interface serial universal aprimorada.",
       "term": "EUSART"
+    },
+    {
+      "aliases": [
+        "ETH",
+        "LAN"
+      ],
+      "category_id": "comunicacao",
+      "detail": "O Ethernet é dividido em partes. O MAC, dentro do microcontrolador, monta e confere os quadros: endereços de 6 bytes, tipo, dados de 46 a 1500 bytes e CRC. O PHY, um chip externo, transforma esses bits no sinal analógico do cabo e negocia velocidade e duplex com o outro lado. Entre os dois vai a interface MII (17 sinais) ou RMII (9 sinais a 50 MHz), e o PHY é configurado pelos fios de gerência MDIO/MDC. Depois do PHY vêm o transformador de isolação e o conector RJ45, muitas vezes num único componente.\n\nNo cabo de par trançado, o 100BASE-TX usa um par para transmitir e outro para receber, até 100 m. O transformador isola eletricamente os dois equipamentos, por isso o PHY nunca é ligado direto no conector. Cada placa precisa de um endereço MAC único: o STM32 não traz um gravado de fábrica, então o firmware gera um, por exemplo a partir do ID único de 96 bits do chip, ou usa um de uma faixa registrada.\n\nO MAC só entrega quadros; o resto é software. Uma pilha TCP/IP como a LwIP cuida de ARP, IP, DHCP, TCP e UDP, e por cima dela vêm HTTP, MQTT, Modbus TCP ou sockets. Isso ocupa dezenas de KiB de RAM em buffers e exige um laço de rede ou um RTOS para processar os pacotes a tempo; o STM32CubeMX gera o esqueleto com LwIP.\n\nO STM32H743 tem um MAC IEEE 802.3 de 10 e 100 Mbit/s com MII ou RMII, DMA próprio com descritores, FIFOs de 2 KiB, filtros de endereço e multicast, VLAN, CRC por hardware e relógio PTP (IEEE 1588) para sincronizar o tempo pela rede. O DMA do Ethernet não alcança a DTCM: descritores e buffers ficam na SRAM do domínio D2, com a região marcada no MPU, como fazem os exemplos da ST (confira no RM0433). Em RMII, o módulo PHY ou um oscilador fornece os 50 MHz em REF_CLK.",
+      "example": "H743 WeAct: os 9 sinais RMII estão nos headers — REF_CLK PA1, MDIO PA2, MDC PC1, CRS_DV PA7, RXD0/RXD1 PC4/PC5, TX_EN PB11 e TXD0/TXD1 PB12/PB13 —, então um módulo LAN8720 liga com fios curtos; PA7 também é o PWDN da câmera (ponte SB1). A H7R3 também tem MAC Ethernet (só RMII no Z8J6); as outras placas do acervo não têm.",
+      "figure": "assets/glossary/ethernet.svg",
+      "figure_caption": "A cadeia do Ethernet do MAC do H743 ao conector RJ45 (RMII, PHY LAN8720 e transformador), os 9 sinais RMII disponíveis nos headers da H743, a estrutura de um quadro Ethernet e a pilha de software acima do MAC.",
+      "meaning": "Ethernet · rede local com fio (IEEE 802.3)",
+      "position": 13,
+      "short": "A rede com fio de computadores e roteadores: com um PHY e um conector RJ45, o microcontrolador entra na rede local e fala TCP/IP, HTTP ou MQTT a 10 ou 100 Mbit/s.",
+      "term": "Ethernet"
     },
     {
       "aliases": [
@@ -1486,7 +1501,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master In Slave Out",
-      "position": 15,
+      "position": 16,
       "short": "Linha SPI do periférico para o controlador.",
       "term": "MISO"
     },
@@ -1498,7 +1513,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Out Slave In",
-      "position": 14,
+      "position": 15,
       "short": "Linha SPI do controlador para o periférico.",
       "term": "MOSI"
     },
@@ -1522,7 +1537,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Master Synchronous Serial Port",
-      "position": 13,
+      "position": 14,
       "short": "Periférico de comunicação síncrona dos PICs.",
       "term": "MSSP"
     },
@@ -1594,7 +1609,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Saída de dreno aberto",
-      "position": 23,
+      "position": 24,
       "short": "Saída que puxa para baixo ou fica em alta impedância.",
       "term": "Open Drain"
     },
@@ -1630,7 +1645,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Physical Layer · camada física",
-      "position": 24,
+      "position": 25,
       "short": "Circuito que traduz sinais digitais para o meio físico.",
       "term": "PHY"
     },
@@ -1678,7 +1693,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Resistor para a alimentação positiva",
-      "position": 22,
+      "position": 23,
       "short": "Mantém uma linha em nível alto quando ninguém a aciona.",
       "term": "Pull-up"
     },
@@ -1718,7 +1733,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Receive · recepção",
-      "position": 20,
+      "position": 21,
       "short": "Sinal de entrada de dados seriais.",
       "term": "RX"
     },
@@ -1730,7 +1745,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock",
-      "position": 16,
+      "position": 17,
       "short": "Clock que sincroniza os bits da interface serial.",
       "term": "SCK"
     },
@@ -1742,7 +1757,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Clock Line",
-      "position": 18,
+      "position": 19,
       "short": "Linha de clock do barramento I2C.",
       "term": "SCL"
     },
@@ -1754,7 +1769,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Serial Data",
-      "position": 17,
+      "position": 18,
       "short": "Linha de dados do barramento I2C.",
       "term": "SDA"
     },
@@ -1769,7 +1784,7 @@ window.CATALOG = {
       "figure": "assets/glossary/sdmmc.svg",
       "figure_caption": "O microSD da H743 no SDMMC1 (PC8 a PC12, PD2 e detecção em PD4) com 22 Ω e pull-ups de 47 kΩ, a leitura de um bloco de 512 bytes com o comando CMD17, as etapas de inicialização e velocidades e os tipos de cartão.",
       "meaning": "Secure Digital / MultiMediaCard interface · controlador de cartão SD e eMMC",
-      "position": 25,
+      "position": 26,
       "short": "Periférico que conversa com cartões SD, microSD e memórias eMMC pelo protocolo nativo, com 4 linhas de dados em paralelo e DMA próprio: bem mais rápido que ler o cartão por SPI.",
       "term": "SDMMC"
     },
@@ -1853,7 +1868,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Transmit · transmissão",
-      "position": 19,
+      "position": 20,
       "short": "Sinal de saída de dados seriais.",
       "term": "TX"
     },
@@ -2384,7 +2399,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 15,
+  "schema": 16,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
