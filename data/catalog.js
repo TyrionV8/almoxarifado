@@ -1638,15 +1638,17 @@ window.CATALOG = {
       "term": "PDIP"
     },
     {
-      "aliases": [],
+      "aliases": [
+        "camada física"
+      ],
       "category_id": "comunicacao",
-      "detail": "Ter um controlador Ethernet no chip não significa ter o PHY, conector e demais componentes na placa.",
-      "example": "Consulte o esquema antes de planejar Ethernet com H7R3.",
-      "figure": null,
-      "figure_caption": null,
+      "detail": "Toda interface de comunicação tem duas metades: o controlador (MAC, OTG, FDCAN, USART), que organiza os bits em quadros, e a camada física, que produz os níveis de tensão, as correntes e os tempos que o meio exige. Em interfaces simples as duas cabem no chip; nas outras, a camada física é um componente à parte, chamado de PHY no Ethernet e no USB e de transceptor no CAN, no RS-485 e no RS-232.\n\nUm PHY de Ethernet 100BASE-TX codifica os dados (4B5B, embaralhamento e MLT-3, um sinal de três níveis que reduz a frequência no cabo), recupera o clock do sinal recebido, detecta se há cabo ligado (link) e combina com o outro lado a velocidade e o duplex (autonegociação). Ele se liga ao MAC por MII ou RMII e é configurado por MDIO/MDC, com registradores padronizados: 0 (controle: reset e velocidade), 1 (status: link e negociação concluída) e 2 e 3 (identificação do fabricante). O endereço do PHY no barramento MDIO vem de pinos de configuração (straps) lidos no reset.\n\nTer o controlador no chip não significa ter a interface pronta: faltam o PHY ou transceptor certo, os componentes do meio (transformador, terminação, conector) e, às vezes, um clock específico. Por outro lado, alguns PHY vêm integrados: o STM32 tem PHY USB full-speed interna, então basta ligar D+ e D− ao conector; para USB high-speed é preciso uma PHY ULPI externa, como a USB3300.\n\nProblemas típicos de PHY de Ethernet: sem link (cabo, transformador ou reset do PHY), MDIO sem resposta (endereço de strap diferente do usado no firmware ou falta de pull-up em MDIO), clock de 50 MHz ausente ou ruidoso no RMII e LEDs do conector trocados pelos straps. Leia primeiro os registradores de identificação: se voltarem 0xFFFF, o MDIO não está conversando.",
+      "example": "H743 WeAct: a placa não tem PHY Ethernet; um módulo LAN8720 (PHY, transformador, RJ45 e oscilador de 50 MHz) liga pelos pinos RMII dos headers. O USB-C usa a PHY full-speed interna do chip, e o CAN precisa de um transceptor externo como o SN65HVD230.",
+      "figure": "assets/glossary/phy.svg",
+      "figure_caption": "Os controladores do H743 e as camadas físicas que cada um precisa (PHY Ethernet, PHY USB interna ou ULPI e transceptores CAN, RS-485 e RS-232), o caminho de transmissão de um PHY 100BASE-TX com a codificação MLT-3 bit a bit e os registradores MDIO usados no diagnóstico.",
       "meaning": "Physical Layer · camada física",
       "position": 25,
-      "short": "Circuito que traduz sinais digitais para o meio físico.",
+      "short": "O circuito que transforma os bits do controlador digital no sinal elétrico que viaja no meio físico (cabo, par diferencial, fibra) e faz o caminho inverso na recepção.",
       "term": "PHY"
     },
     {
@@ -2399,7 +2401,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 16,
+  "schema": 17,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",

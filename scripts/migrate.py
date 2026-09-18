@@ -844,9 +844,43 @@ def migrate_to_16(con: sqlite3.Connection) -> None:
                 'disponíveis nos headers da H743, a estrutura de um quadro Ethernet e a pilha de software acima do MAC.')
 
 
+def migrate_to_17(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'PHY', aliases=('camada física',),
+        meaning='Physical Layer · camada física',
+        short='O circuito que transforma os bits do controlador digital no sinal elétrico que viaja no meio físico (cabo, par '
+              'diferencial, fibra) e faz o caminho inverso na recepção.',
+        detail=(
+            'Toda interface de comunicação tem duas metades: o controlador (MAC, OTG, FDCAN, USART), que organiza os bits em quadros, '
+            'e a camada física, que produz os níveis de tensão, as correntes e os tempos que o meio exige. Em interfaces simples as '
+            'duas cabem no chip; nas outras, a camada física é um componente à parte, chamado de PHY no Ethernet e no USB e de '
+            'transceptor no CAN, no RS-485 e no RS-232.\n\n'
+            'Um PHY de Ethernet 100BASE-TX codifica os dados (4B5B, embaralhamento e MLT-3, um sinal de três níveis que reduz a '
+            'frequência no cabo), recupera o clock do sinal recebido, detecta se há cabo ligado (link) e combina com o outro lado a '
+            'velocidade e o duplex (autonegociação). Ele se liga ao MAC por MII ou RMII e é configurado por MDIO/MDC, com '
+            'registradores padronizados: 0 (controle: reset e velocidade), 1 (status: link e negociação concluída) e 2 e 3 '
+            '(identificação do fabricante). O endereço do PHY no barramento MDIO vem de pinos de configuração (straps) lidos no '
+            'reset.\n\n'
+            'Ter o controlador no chip não significa ter a interface pronta: faltam o PHY ou transceptor certo, os componentes do '
+            'meio (transformador, terminação, conector) e, às vezes, um clock específico. Por outro lado, alguns PHY vêm integrados: '
+            'o STM32 tem PHY USB full-speed interna, então basta ligar D+ e D− ao conector; para USB high-speed é preciso uma PHY '
+            'ULPI externa, como a USB3300.\n\n'
+            'Problemas típicos de PHY de Ethernet: sem link (cabo, transformador ou reset do PHY), MDIO sem resposta (endereço de '
+            'strap diferente do usado no firmware ou falta de pull-up em MDIO), clock de 50 MHz ausente ou ruidoso no RMII e LEDs '
+            'do conector trocados pelos straps. Leia primeiro os registradores de identificação: se voltarem 0xFFFF, o MDIO não '
+            'está conversando.'),
+        example='H743 WeAct: a placa não tem PHY Ethernet; um módulo LAN8720 (PHY, transformador, RJ45 e oscilador de 50 MHz) liga '
+                'pelos pinos RMII dos headers. O USB-C usa a PHY full-speed interna do chip, e o CAN precisa de um transceptor '
+                'externo como o SN65HVD230.',
+        figure='assets/glossary/phy.svg',
+        caption='Os controladores do H743 e as camadas físicas que cada um precisa (PHY Ethernet, PHY USB interna ou ULPI e '
+                'transceptores CAN, RS-485 e RS-232), o caminho de transmissão de um PHY 100BASE-TX com a codificação MLT-3 bit a '
+                'bit e os registradores MDIO usados no diagnóstico.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15, 16: migrate_to_16}
+              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
