@@ -1011,10 +1011,42 @@ def migrate_to_21(con: sqlite3.Connection) -> None:
                 'H743.')
 
 
+def migrate_to_22(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'HRTIM', aliases=('HRTIM1',),
+        meaning='High-Resolution Timer · temporizador de alta resolução',
+        short='Conjunto de timers sincronizados feito para eletrônica de potência: gera pulsos com passo de nanossegundos, pares com '
+              'tempo morto e desligamento por falha em hardware.',
+        detail=(
+            'O HRTIM reúne seis timers que trabalham juntos: um mestre, que dá o ritmo e as fases, e cinco escravos (A a E), cada um '
+            'com duas saídas. Cada saída é ligada e desligada por uma lista de eventos (fim do período, comparações, eventos '
+            'externos, o mestre), o que permite formas de onda que um timer comum não faz: pulsos defasados entre si, frequência '
+            'variável com tempo ligado constante, modos push-pull e ressonante e rajadas (burst).\n\n'
+            'A diferença está no passo de tempo. No STM32H743, o núcleo do HRTIM roda a 480 MHz, então duty e período se ajustam em '
+            'degraus de 2,1 ns, metade do passo de um timer comum a 240 MHz. Numa fonte buck de 200 kHz com 12 V de entrada, isso dá '
+            'degraus de 5 mV na saída em vez de 10 mV. Na G474 do acervo, o HRTIM usa um DLL e chega a 184 ps, degrau cerca de 11 '
+            'vezes menor que o do H743 — por isso a G474 é a escolha para controle de potência fino.\n\n'
+            'A proteção também é por hardware: cinco entradas de falha (FLT) desligam as saídas em nanossegundos quando um '
+            'comparador detecta sobrecorrente, sem esperar o software, e dez entradas de evento externo reagem a sinais como '
+            'corrente zero ou limite de corrente. As saídas podem ser pareadas com tempo morto para meias pontes, e o HRTIM dispara o '
+            'ADC num ponto exato do ciclo, por exemplo no meio do pulso, para medir a corrente longe do ruído de chaveamento.\n\n'
+            'Serve para conversores buck e boost, pontes completas com deslocamento de fase, conversores LLC, conversores '
+            'intercalados de várias fases, iluminação LED e inversores. Também funciona como timer comum ou como PWM de alta '
+            'resolução para imitar um DAC. Trabalhar com potência exige cuidado: driver de gate adequado, layout curto, medição de '
+            'corrente e primeiros testes com fonte limitada em corrente.'),
+        example='H743 WeAct: no LQFP100 existem as saídas dos timers A a D (o E não tem pinos); só o timer C está livre nos headers, '
+                'em PA9 (CHC1) e PA10 (CHC2), com a entrada de falha FLT1 em PA15. A G474 do acervo tem HRTIM de 184 ps com 12 '
+                'saídas, mais adequado para fontes chaveadas.',
+        figure='assets/glossary/hrtim.svg',
+        caption='A estrutura do HRTIM do H743 (timer mestre e timers A a E, com os pinos na placa), três fases defasadas de 120°, a '
+                'resolução do timer comum, do HRTIM do H743 e do HRTIM da G474 numa fonte buck de 200 kHz, e uma meia ponte com '
+                'driver, tempo morto e proteção por entrada de falha.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
               15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20,
-              21: migrate_to_21}
+              21: migrate_to_21, 22: migrate_to_22}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
