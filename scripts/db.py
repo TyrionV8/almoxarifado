@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data'
 DATABASE = DATA / 'inventory.sqlite'
 SOURCES = DATA / 'sources.json'
-SCHEMA_VERSION = 20
+SCHEMA_VERSION = 21
 MAX_MOVEMENT_QUANTITY = 1000
 MAX_NOTE_LENGTH = 500
 

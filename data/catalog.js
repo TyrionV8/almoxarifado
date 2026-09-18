@@ -1875,15 +1875,19 @@ window.CATALOG = {
       "term": "TX"
     },
     {
-      "aliases": [],
+      "aliases": [
+        "Timers",
+        "temporizador",
+        "temporizadores"
+      ],
       "category_id": "analogico",
-      "detail": "Um prescaler divide o clock de entrada. O estouro ou comparação pode gerar interrupções. Watchdog é um temporizador de recuperação, não uma saída PWM.",
-      "example": "PIC12F675 tem Timer0 de 8 bits e Timer1 de 16 bits.",
-      "figure": null,
-      "figure_caption": null,
-      "meaning": "Temporizador/contador",
+      "detail": "Todo timer tem a mesma base: um clock de entrada passa por um divisor (PSC) e incrementa o contador (CNT) até o valor de recarga (ARR). Ao chegar lá, o contador volta a zero e gera um evento de atualização, que pode chamar uma interrupção, pedir um DMA ou disparar outro periférico (saída TRGO). O período é (PSC + 1) × (ARR + 1) ÷ f_clock: com o timer a 240 MHz, PSC = 23 999 e ARR = 9 dão exatamente um evento por milissegundo, independente do que o programa esteja fazendo.\n\nOs canais de captura e comparação ampliam o uso. Em captura, uma borda no pino copia o valor do contador para o registrador CCR no mesmo instante, sem atraso de software: a diferença entre duas capturas dá período, frequência ou largura de pulso. Em comparação, quando o contador alcança o CCR, o timer muda o pino, gera PWM ou um pulso único (one-pulse). No modo encoder, dois canais leem os sinais A e B de um encoder em quadratura e o contador sobe ou desce sozinho: o CNT passa a ser a posição do eixo.\n\nTimers também se encadeiam: um timer mestre pode iniciar, pausar ou contar os eventos de outro, ou disparar conversões do ADC e atualizações do DAC em intervalos exatos, sem o jitter de fazer a mesma coisa num laço de programa. Contadores de 16 bits estouram em 65 536; para contagens longas ou rápidas, use um timer de 32 bits ou conte os estouros.\n\nO STM32H743 tem 22 timers e watchdogs, mais o SysTick: o HRTIM (alta resolução), dois avançados (TIM1 e TIM8, com saídas complementares), dez de uso geral (TIM2 e TIM5 de 32 bits; TIM3, TIM4 e TIM12 a TIM17), dois básicos (TIM6 e TIM7, sem pinos, para base de tempo e DAC), cinco de baixo consumo (LPTIM1 a LPTIM5, que funcionam no modo Stop) e dois watchdogs. O clock dos timers chega a 240 MHz, e todos podem ser congelados durante a depuração.",
+      "example": "H743 WeAct: TIM2 ou TIM5 em PA0–PA3, livres, para encoder (PA0/PA1) ou captura. O PIC12F675 tem Timer0 de 8 bits e Timer1 de 16 bits; no Arduino, millis() usa o Timer0 do ATmega328P.",
+      "figure": "assets/glossary/timer.svg",
+      "figure_caption": "O interior de um timer do H743 (clock, prescaler, contador, ARR, evento de atualização e canais de captura e comparação), três usos além do PWM — medir frequência, ler encoder e dar ritmo ao ADC — e a tabela dos timers do H743.",
+      "meaning": "Timer · temporizador e contador de hardware",
       "position": 4,
-      "short": "Conta ciclos ou eventos externos.",
+      "short": "Contador de hardware que marca tempo sozinho, sem ocupar a CPU: gera interrupções periódicas, mede pulsos e frequências, lê encoders, dispara o ADC e produz PWM.",
       "term": "Timer"
     },
     {
@@ -2401,7 +2405,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 20,
+  "schema": 21,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",

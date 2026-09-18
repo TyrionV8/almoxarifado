@@ -979,9 +979,42 @@ def migrate_to_20(con: sqlite3.Connection) -> None:
                 'entre frequência e resolução com o timer a 240 MHz e as saídas complementares com tempo morto em PE9/PE8.')
 
 
+def migrate_to_21(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'Timer', aliases=('Timers', 'temporizador', 'temporizadores'),
+        meaning='Timer · temporizador e contador de hardware',
+        short='Contador de hardware que marca tempo sozinho, sem ocupar a CPU: gera interrupções periódicas, mede pulsos e '
+              'frequências, lê encoders, dispara o ADC e produz PWM.',
+        detail=(
+            'Todo timer tem a mesma base: um clock de entrada passa por um divisor (PSC) e incrementa o contador (CNT) até o valor de '
+            'recarga (ARR). Ao chegar lá, o contador volta a zero e gera um evento de atualização, que pode chamar uma interrupção, '
+            'pedir um DMA ou disparar outro periférico (saída TRGO). O período é (PSC + 1) × (ARR + 1) ÷ f_clock: com o timer a '
+            '240 MHz, PSC = 23 999 e ARR = 9 dão exatamente um evento por milissegundo, independente do que o programa esteja '
+            'fazendo.\n\n'
+            'Os canais de captura e comparação ampliam o uso. Em captura, uma borda no pino copia o valor do contador para o '
+            'registrador CCR no mesmo instante, sem atraso de software: a diferença entre duas capturas dá período, frequência ou '
+            'largura de pulso. Em comparação, quando o contador alcança o CCR, o timer muda o pino, gera PWM ou um pulso único '
+            '(one-pulse). No modo encoder, dois canais leem os sinais A e B de um encoder em quadratura e o contador sobe ou desce '
+            'sozinho: o CNT passa a ser a posição do eixo.\n\n'
+            'Timers também se encadeiam: um timer mestre pode iniciar, pausar ou contar os eventos de outro, ou disparar conversões '
+            'do ADC e atualizações do DAC em intervalos exatos, sem o jitter de fazer a mesma coisa num laço de programa. Contadores '
+            'de 16 bits estouram em 65 536; para contagens longas ou rápidas, use um timer de 32 bits ou conte os estouros.\n\n'
+            'O STM32H743 tem 22 timers e watchdogs, mais o SysTick: o HRTIM (alta resolução), dois avançados (TIM1 e TIM8, com '
+            'saídas complementares), dez de uso geral (TIM2 e TIM5 de 32 bits; TIM3, TIM4 e TIM12 a TIM17), dois básicos (TIM6 e '
+            'TIM7, sem pinos, para base de tempo e DAC), cinco de baixo consumo (LPTIM1 a LPTIM5, que funcionam no modo Stop) e dois '
+            'watchdogs. O clock dos timers chega a 240 MHz, e todos podem ser congelados durante a depuração.'),
+        example='H743 WeAct: TIM2 ou TIM5 em PA0–PA3, livres, para encoder (PA0/PA1) ou captura. O PIC12F675 tem Timer0 de 8 bits e '
+                'Timer1 de 16 bits; no Arduino, millis() usa o Timer0 do ATmega328P.',
+        figure='assets/glossary/timer.svg',
+        caption='O interior de um timer do H743 (clock, prescaler, contador, ARR, evento de atualização e canais de captura e '
+                'comparação), três usos além do PWM — medir frequência, ler encoder e dar ritmo ao ADC — e a tabela dos timers do '
+                'H743.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20}
+              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20,
+              21: migrate_to_21}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
