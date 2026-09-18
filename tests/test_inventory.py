@@ -67,7 +67,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(names), len(set(names)), 'sinônimo repetido ou igual a outro termo')
         figures = {t['term']: t['figure'] for t in self.data['glossary'] if t['figure']}
         # Termos documentados no modelo de QSPI: figura e explicação em vários parágrafos.
-        documented = ['QSPI', 'SPI', 'USART']
+        documented = ['QSPI', 'SPI', 'USART', 'UART']
         self.assertEqual(sorted(figures), sorted(documented))
         for term in documented[2:] + ['QSPI']:
             detail = next(t['detail'] for t in self.data['glossary'] if t['term'] == term)

@@ -559,7 +559,37 @@ def migrate_to_7(con: sqlite3.Connection) -> None:
                 'DE), as diferenças entre USART e UART no H743 (DS12110, tabela 6) e os pinos livres na placa.')
 
 
-MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7}
+def migrate_to_8(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'UART',
+        meaning='Universal Asynchronous Receiver/Transmitter · transmissor/receptor assíncrono universal',
+        short='Comunicação serial por dois fios de dados (TX e RX) sem clock: os dois lados combinam antes a velocidade e o formato, '
+              'e cada byte viaja num quadro com bit de início e bit de parada.',
+        detail=(
+            'Ligação ponto a ponto: o TX de um vai ao RX do outro, e os GND precisam estar ligados. A linha fica em 1 quando está '
+            'ociosa; um byte começa com o start bit (0), segue com 5 a 9 bits de dados, do menos significativo para o mais '
+            'significativo, um bit de paridade opcional e um ou dois stop bits (1). O formato é escrito como 8N1: 8 bits de dados, '
+            'sem paridade, 1 stop bit.\n\n'
+            'Não existe clock no fio. O receptor detecta a descida do start bit e, a partir dela, lê cada bit no meio do seu '
+            'intervalo usando o próprio clock (o STM32 amostra 16 ou 8 vezes por bit). Por isso o baud rate precisa ser igual nos '
+            'dois lados e a soma dos erros de clock deve ficar abaixo de cerca de 2 %: com cristal não há problema; com oscilador RC '
+            'interno ou baud rate que não divide bem o clock do periférico surgem caracteres trocados e erros de quadro. A 115 200 '
+            'bit/s cada bit dura 8,68 µs e um quadro 8N1 de 10 bits leva 86,8 µs (até 11 520 bytes/s).\n\n'
+            'Nível elétrico: a UART do microcontrolador trabalha em nível lógico (3,3 V no STM32, 5 V no Arduino Uno). RS-232 usa '
+            'tensões de ±3 a ±15 V, invertidas, e queima o pino se ligado direto; precisa de um conversor como o MAX3232. RS-485 e LIN '
+            'também exigem transceptor. Um adaptador USB–UART (CH343P, CH340, FT232) mostra a UART ao computador como porta COM, '
+            '/dev/ttyUSB ou /dev/ttyACM.\n\n'
+            'Na prática: receba por interrupção ou DMA para não perder bytes, trate o erro de overrun e use controle de fluxo RTS/CTS '
+            'quando o outro lado for lento. Para vários dispositivos no mesmo par de fios, use RS-485 com DE (veja USART). O '
+            'bootloader de fábrica do STM32 aceita gravação pela UART: no H743, USART1 em PA9/PA10 com BOOT0 em nível alto.'),
+        example='H743 WeAct: USART1 em PA9 (TX) e PA10 (RX), ligado ao CH343P do acervo para console e gravação pelo bootloader. '
+                'No Arduino Uno e Nano, D0/D1 são a UART do ATmega328P, já usada pela ponte USB. O PIC16F887 usa a EUSART em RC6/RC7.',
+        figure='assets/glossary/uart.svg',
+        caption='Ligação cruzada do CH343P ao USART1 da H743 (PA9/PA10), a forma de onda do byte 0x41 em 8N1 a 115 200 bit/s com '
+                'os pontos de amostragem, a notação 8N1 e os erros mais comuns.')
+
+
+MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
