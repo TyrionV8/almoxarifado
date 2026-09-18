@@ -1002,13 +1002,13 @@ window.CATALOG = {
     {
       "aliases": [],
       "category_id": "analogico",
-      "detail": "Confira resolução, faixa de saída, buffer e se o canal chega a um pino externo. PWM filtrado pode aproximar uma saída analógica, mas não é um DAC nativo.",
-      "example": "PIC12F1501 tem DAC de 5 bits. F411 não possui DAC.",
-      "figure": null,
-      "figure_caption": null,
+      "detail": "O DAC recebe um código e produz V = VREF+ × código ÷ (2ᴺ − 1). No STM32H743, com 12 bits e VREF+ = 3,3 V, cada degrau vale cerca de 0,8 mV; também existe o modo de 8 bits. A saída passa por um buffer interno que pode ser ligado ou desligado: ligado, a saída vai de 0,2 V a VDDA − 0,2 V e alimenta cargas de 5 kΩ ou mais; desligado, alcança de 0 a VREF+, mas com impedância de saída de cerca de 13 kΩ, servindo só para entradas de alta impedância (DS12110, tabela 187).\n\nO DAC não é fonte de potência: para alimentar LED, motor, alto-falante ou qualquer carga de baixa impedância é preciso um amplificador operacional ou um transistor depois dele. A precisão depende da referência: com VREF+ ligado ao 3,3 V da placa, o ruído do regulador aparece na saída. Uma referência dedicada melhora o resultado; o VREFBUF interno do H743 só pode ser usado se o pino VREF+ não estiver ligado ao 3V3.\n\nPara gerar formas de onda, a CPU não deve escrever valor por valor: um timer (TIM6 ou TIM7, por exemplo) dispara a atualização em intervalos exatos e o DMA copia o próximo ponto de uma tabela na memória. A frequência da onda é a taxa de disparo dividida pelo número de pontos: 1 MHz ÷ 100 pontos = 10 kHz. A saída sai em degraus; um filtro RC ou ativo depois do pino suaviza a forma. O próprio DAC ainda gera ondas triangulares e ruído pseudoaleatório, úteis em testes.\n\nO STM32H743 tem um DAC com dois canais de 12 bits (DAC1_OUT1 em PA4 e DAC1_OUT2 em PA5), atualização de até cerca de 1 MHz (estabiliza em ~2 µs no fundo de escala), atualização simultânea dos dois canais, DMA por canal com detecção de underrun, disparo por timer e modo sample-and-hold para economizar energia. Quando a velocidade não importa, um PWM com filtro RC faz o papel de DAC em quase qualquer pino, com mais ondulação.",
+      "example": "H743 WeAct: DAC1_OUT2 em PA5 está livre nos headers; DAC1_OUT1 em PA4 também é o HSYNC da câmera, e o VREF+ está ligado ao 3V3 pelo R9. O PIC12F1501 tem DAC de 5 bits; F411, F103 e ATmega328P não têm DAC — no Uno, analogWrite() é PWM, não tensão contínua.",
+      "figure": "assets/glossary/dac.svg",
+      "figure_caption": "O caminho do DAC do H743 com a fórmula da tensão e as faixas de saída com o buffer ligado e desligado, a geração de um seno com timer, DMA e tabela antes e depois do filtro RC, e a comparação entre DAC e PWM filtrado.",
       "meaning": "Digital-to-Analog Converter · conversor digital-analógico",
       "position": 2,
-      "short": "Transforma um número em uma tensão analógica.",
+      "short": "Transforma um número em tensão analógica: é o caminho inverso do ADC, usado para gerar níveis de referência, formas de onda e sinais de controle.",
       "term": "DAC"
     },
     {
@@ -2401,7 +2401,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 18,
+  "schema": 19,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",

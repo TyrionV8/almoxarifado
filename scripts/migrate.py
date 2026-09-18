@@ -914,9 +914,42 @@ def migrate_to_18(con: sqlite3.Connection) -> None:
                 'taxas máximas por tipo de canal.')
 
 
+def migrate_to_19(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'DAC',
+        meaning='Digital-to-Analog Converter · conversor digital-analógico',
+        short='Transforma um número em tensão analógica: é o caminho inverso do ADC, usado para gerar níveis de referência, formas de '
+              'onda e sinais de controle.',
+        detail=(
+            'O DAC recebe um código e produz V = VREF+ × código ÷ (2ᴺ − 1). No STM32H743, com 12 bits e VREF+ = 3,3 V, cada degrau '
+            'vale cerca de 0,8 mV; também existe o modo de 8 bits. A saída passa por um buffer interno que pode ser ligado ou '
+            'desligado: ligado, a saída vai de 0,2 V a VDDA − 0,2 V e alimenta cargas de 5 kΩ ou mais; desligado, alcança de 0 a '
+            'VREF+, mas com impedância de saída de cerca de 13 kΩ, servindo só para entradas de alta impedância (DS12110, tabela '
+            '187).\n\n'
+            'O DAC não é fonte de potência: para alimentar LED, motor, alto-falante ou qualquer carga de baixa impedância é preciso '
+            'um amplificador operacional ou um transistor depois dele. A precisão depende da referência: com VREF+ ligado ao 3,3 V da '
+            'placa, o ruído do regulador aparece na saída. Uma referência dedicada melhora o resultado; o VREFBUF interno do H743 só '
+            'pode ser usado se o pino VREF+ não estiver ligado ao 3V3.\n\n'
+            'Para gerar formas de onda, a CPU não deve escrever valor por valor: um timer (TIM6 ou TIM7, por exemplo) dispara a '
+            'atualização em intervalos exatos e o DMA copia o próximo ponto de uma tabela na memória. A frequência da onda é a taxa '
+            'de disparo dividida pelo número de pontos: 1 MHz ÷ 100 pontos = 10 kHz. A saída sai em degraus; um filtro RC ou ativo '
+            'depois do pino suaviza a forma. O próprio DAC ainda gera ondas triangulares e ruído pseudoaleatório, úteis em '
+            'testes.\n\n'
+            'O STM32H743 tem um DAC com dois canais de 12 bits (DAC1_OUT1 em PA4 e DAC1_OUT2 em PA5), atualização de até cerca de '
+            '1 MHz (estabiliza em ~2 µs no fundo de escala), atualização simultânea dos dois canais, DMA por canal com detecção de '
+            'underrun, disparo por timer e modo sample-and-hold para economizar energia. Quando a velocidade não importa, um PWM com '
+            'filtro RC faz o papel de DAC em quase qualquer pino, com mais ondulação.'),
+        example='H743 WeAct: DAC1_OUT2 em PA5 está livre nos headers; DAC1_OUT1 em PA4 também é o HSYNC da câmera, e o VREF+ está '
+                'ligado ao 3V3 pelo R9. O PIC12F1501 tem DAC de 5 bits; F411, F103 e ATmega328P não têm DAC — no Uno, analogWrite() '
+                'é PWM, não tensão contínua.',
+        figure='assets/glossary/dac.svg',
+        caption='O caminho do DAC do H743 com a fórmula da tensão e as faixas de saída com o buffer ligado e desligado, a geração '
+                'de um seno com timer, DMA e tabela antes e depois do filtro RC, e a comparação entre DAC e PWM filtrado.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18}
+              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
