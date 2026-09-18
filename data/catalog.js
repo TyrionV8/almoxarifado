@@ -1882,13 +1882,13 @@ window.CATALOG = {
     {
       "aliases": [],
       "category_id": "comunicacao",
-      "detail": "No modo assíncrono funciona como uma UART; a disponibilidade de sinais depende do chip e da configuração.",
-      "example": "STM32F411 possui interfaces USART.",
-      "figure": null,
-      "figure_caption": null,
-      "meaning": "Universal Synchronous/Asynchronous Receiver/Transmitter",
+      "detail": "No modo assíncrono o USART é exatamente uma UART: TX e RX com quadro start, dados, paridade e stop, e baud rate combinado entre os dois lados (veja UART). O \"S\" de síncrono acrescenta o pino CK: o USART gera um pulso de clock para cada bit e o outro lado lê os dados nesse ritmo, sem baud rate combinado. Na prática vira um SPI mestre simples (CK = SCK, TX = MOSI, RX = MISO).\n\nSinais extras opcionais: RTS/CTS fazem controle de fluxo por hardware. Quem recebe ativa RTS quando tem espaço e o outro lado só transmite com o seu CTS ativo, o que evita perder bytes com módulos lentos (Wi-Fi, Bluetooth, modems). DE (Driver Enable) liga o transmissor de um transceptor RS-485 só durante o envio, permitindo vários dispositivos no mesmo par de fios; no STM32 o pino RTS vira DE quando o modo RS-485 está ativo.\n\nO mesmo bloco ainda oferece half-duplex num fio só, LIN (redes automotivas), IrDA (infravermelho), Smartcard ISO 7816, detecção automática de baud rate, timeout de recepção (útil para Modbus) e modo multiprocessador. No STM32H743 cada USART tem FIFO de 16 posições na transmissão e na recepção, atende DMA, chega a 12,5 Mbit/s e tem clock independente da CPU: pode acordar o chip do modo Stop ao receber um start bit.\n\nO H743 tem quatro USART (1, 2, 3 e 6) e quatro UART (4, 5, 7 e 8). As UART não têm CK nem Smartcard, mas mantêm RTS/CTS, DE, LIN, IrDA e FIFO. Na HAL da ST, o modo síncrono usa as funções HAL_USART_* e o assíncrono (o mais comum) usa HAL_UART_*, inclusive nos USART. Cada sinal só existe em certos pinos, e o número da função alternativa muda de pino para pino: confira na pinagem completa.",
+      "example": "H743 WeAct: USART3 completo e livre nos headers, com PD8 TX, PD9 RX, PD10 CK, PB13 CTS e PB14 RTS/DE. O USART1 em PA9/PA10 é o mesmo usado pelo bootloader serial (gravação com o CH343P). A BlackPill F411 tem USART1, 2 e 6.",
+      "figure": "assets/glossary/usart.svg",
+      "figure_caption": "Os quatro modos de ligação do USART3 da H743 (assíncrono, síncrono com CK, controle de fluxo RTS/CTS e RS-485 com DE), as diferenças entre USART e UART no H743 (DS12110, tabela 6) e os pinos livres na placa.",
+      "meaning": "Universal Synchronous/Asynchronous Receiver/Transmitter · transmissor/receptor universal síncrono e assíncrono",
       "position": 4,
-      "short": "Interface serial que também pode operar sincronamente.",
+      "short": "Periférico serial que faz tudo o que uma UART faz e ainda pode enviar o próprio clock (modo síncrono), controlar o fluxo com RTS/CTS e acionar transceptores RS-485.",
       "term": "USART"
     },
     {
@@ -2344,7 +2344,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 6,
+  "schema": 7,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",

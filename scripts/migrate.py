@@ -513,7 +513,53 @@ def migrate_to_6(con: sqlite3.Connection) -> None:
          'Flash SPI da H743; embaixo, um byte trocado no modo 0 e a tabela dos quatro modos CPOL/CPHA.'))
 
 
-MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6}
+# ---------------------------------------------------------------- versões 7+
+# Documentação completa, termo a termo, no modelo de QSPI: explicação em parágrafos, exemplo no acervo e figura SVG.
+
+def document_term(con: sqlite3.Connection, term: str, *, meaning: str, short: str, detail: str, example: str,
+                  figure: str, caption: str, aliases: tuple = (), category: str | None = None) -> None:
+    """Atualiza um termo do glossário ou, se ele não existir, cria no fim da categoria indicada."""
+    values = (meaning, short, detail, example, json.dumps(list(aliases), ensure_ascii=False), figure, caption)
+    if con.execute('SELECT 1 FROM glossary WHERE term = ?', (term,)).fetchone():
+        con.execute('UPDATE glossary SET meaning = ?, short = ?, detail = ?, example = ?, aliases = ?, figure = ?, figure_caption = ? '
+                    'WHERE term = ?', (*values, term))
+    else:
+        position = con.execute('SELECT COALESCE(MAX(position), 0) + 1 FROM glossary WHERE category_id = ?', (category,)).fetchone()[0]
+        con.execute('INSERT INTO glossary(term, category_id, position, meaning, short, detail, example, aliases, figure, figure_caption) '
+                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (term, category, position, *values))
+
+
+def migrate_to_7(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'USART',
+        meaning='Universal Synchronous/Asynchronous Receiver/Transmitter · transmissor/receptor universal síncrono e assíncrono',
+        short='Periférico serial que faz tudo o que uma UART faz e ainda pode enviar o próprio clock (modo síncrono), controlar o '
+              'fluxo com RTS/CTS e acionar transceptores RS-485.',
+        detail=(
+            'No modo assíncrono o USART é exatamente uma UART: TX e RX com quadro start, dados, paridade e stop, e baud rate combinado '
+            'entre os dois lados (veja UART). O "S" de síncrono acrescenta o pino CK: o USART gera um pulso de clock para cada bit e o '
+            'outro lado lê os dados nesse ritmo, sem baud rate combinado. Na prática vira um SPI mestre simples (CK = SCK, TX = MOSI, '
+            'RX = MISO).\n\n'
+            'Sinais extras opcionais: RTS/CTS fazem controle de fluxo por hardware. Quem recebe ativa RTS quando tem espaço e o outro '
+            'lado só transmite com o seu CTS ativo, o que evita perder bytes com módulos lentos (Wi-Fi, Bluetooth, modems). DE (Driver '
+            'Enable) liga o transmissor de um transceptor RS-485 só durante o envio, permitindo vários dispositivos no mesmo par de '
+            'fios; no STM32 o pino RTS vira DE quando o modo RS-485 está ativo.\n\n'
+            'O mesmo bloco ainda oferece half-duplex num fio só, LIN (redes automotivas), IrDA (infravermelho), Smartcard ISO 7816, '
+            'detecção automática de baud rate, timeout de recepção (útil para Modbus) e modo multiprocessador. No STM32H743 cada USART '
+            'tem FIFO de 16 posições na transmissão e na recepção, atende DMA, chega a 12,5 Mbit/s e tem clock independente da CPU: '
+            'pode acordar o chip do modo Stop ao receber um start bit.\n\n'
+            'O H743 tem quatro USART (1, 2, 3 e 6) e quatro UART (4, 5, 7 e 8). As UART não têm CK nem Smartcard, mas mantêm RTS/CTS, '
+            'DE, LIN, IrDA e FIFO. Na HAL da ST, o modo síncrono usa as funções HAL_USART_* e o assíncrono (o mais comum) usa '
+            'HAL_UART_*, inclusive nos USART. Cada sinal só existe em certos pinos, e o número da função alternativa muda de pino para '
+            'pino: confira na pinagem completa.'),
+        example='H743 WeAct: USART3 completo e livre nos headers, com PD8 TX, PD9 RX, PD10 CK, PB13 CTS e PB14 RTS/DE. O USART1 em '
+                'PA9/PA10 é o mesmo usado pelo bootloader serial (gravação com o CH343P). A BlackPill F411 tem USART1, 2 e 6.',
+        figure='assets/glossary/usart.svg',
+        caption='Os quatro modos de ligação do USART3 da H743 (assíncrono, síncrono com CK, controle de fluxo RTS/CTS e RS-485 com '
+                'DE), as diferenças entre USART e UART no H743 (DS12110, tabela 6) e os pinos livres na placa.')
+
+
+MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
