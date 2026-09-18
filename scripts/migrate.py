@@ -781,8 +781,41 @@ def migrate_to_14(con: sqlite3.Connection) -> None:
                 'dominante, a arbitragem por ID entre dois nós e a comparação entre os quadros CAN 2.0 e CAN FD.')
 
 
+def migrate_to_15(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'SDMMC', aliases=('SDIO', 'microSD'),
+        meaning='Secure Digital / MultiMediaCard interface · controlador de cartão SD e eMMC',
+        short='Periférico que conversa com cartões SD, microSD e memórias eMMC pelo protocolo nativo, com 4 linhas de dados em '
+              'paralelo e DMA próprio: bem mais rápido que ler o cartão por SPI.',
+        detail=(
+            'Sinais: CLK, sempre gerado pelo microcontrolador; CMD, linha bidirecional por onde vão os comandos e voltam as respostas; '
+            'e D0–D3, os dados, usados em paralelo no modo de 4 bits (no modo de 1 bit, só D0). O cartão funciona entre 2,7 e 3,6 V, '
+            'e as linhas CMD e D0–D3 precisam de pull-up (tipicamente 10 a 100 kΩ). Resistores de 22 a 33 Ω em série ajudam a evitar '
+            'reflexões com clock alto, e uma chave no soquete pode indicar se há cartão.\n\n'
+            'Todo acesso começa com um comando de 48 bits em CMD: bit de início, número do comando (CMD17 lê um bloco, CMD24 grava), '
+            'argumento de 32 bits com o endereço, CRC7 e bit de fim. O cartão responde também em CMD e, em seguida, os dados passam '
+            'por D0–D3 em blocos de 512 bytes, cada linha com o seu CRC16. Na gravação, o cartão segura D0 em 0 enquanto está '
+            'ocupado. Ler ou gravar vários blocos seguidos (CMD18/CMD25) é muito mais rápido que blocos soltos.\n\n'
+            'Na inicialização, o controlador usa clock de até 400 kHz e uma linha: identifica o cartão, lê a capacidade, dá um '
+            'endereço relativo e só então passa para 4 bits e 25 MHz (Default Speed, até 12,5 MB/s) ou 50 MHz (High Speed, até '
+            '25 MB/s). Os modos UHS-I (SDR50, SDR104) exigem sinais de 1,8 V e um circuito que troque a tensão. Cartões SDSC (até '
+            '2 GB) endereçam em bytes; SDHC (até 32 GB) e SDXC (até 2 TB) endereçam em blocos e vêm formatados em FAT32 ou exFAT. O '
+            'sistema de arquivos fica por conta de uma biblioteca como a FatFs.\n\n'
+            'O STM32H743 tem dois SDMMC, compatíveis com SD 4.1, SDIO 4.0 e eMMC 4.51 (até 8 bits), com clock de até 125 MHz e DMA '
+            'interno (IDMA). Cada um atende um cartão por vez. O IDMA do SDMMC1 não alcança a DTCM: deixe os buffers na AXI SRAM e, '
+            'com a cache ligada, limpe ou invalide a cache antes e depois das transferências (confira no manual RM0433). O modo '
+            'SDIO também serve para módulos Wi-Fi que usam essa interface.'),
+        example='H743 WeAct: microSD no SDMMC1 em 4 bits — PC8 a PC11 (D0–D3), PC12 (CLK) e PD2 (CMD) — com 22 Ω em série, '
+                'pull-ups de 47 kΩ e detecção em PD4 (ponte SB2). A BlackPill F411 também tem SDIO; Arduino Uno e Nano só leem '
+                'cartão por SPI, bem mais devagar.',
+        figure='assets/glossary/sdmmc.svg',
+        caption='O microSD da H743 no SDMMC1 (PC8 a PC12, PD2 e detecção em PD4) com 22 Ω e pull-ups de 47 kΩ, a leitura de um '
+                'bloco de 512 bytes com o comando CMD17, as etapas de inicialização e velocidades e os tipos de cartão.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
-              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14}
+              9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
+              15: migrate_to_15}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

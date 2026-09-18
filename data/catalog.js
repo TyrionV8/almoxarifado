@@ -1759,15 +1759,18 @@ window.CATALOG = {
       "term": "SDA"
     },
     {
-      "aliases": [],
+      "aliases": [
+        "SDIO",
+        "microSD"
+      ],
       "category_id": "comunicacao",
-      "detail": "Usa CLK, CMD e D0–D3; costuma ser acompanhado de biblioteca de sistema de arquivos (FAT). Pull-ups e comprimento das trilhas afetam a velocidade máxima.",
-      "example": "H743 WeAct: microSD no SDMMC1 (PC8–PC12 e PD2), detecção em PD4.",
-      "figure": null,
-      "figure_caption": null,
-      "meaning": "Secure Digital / MultiMediaCard interface",
+      "detail": "Sinais: CLK, sempre gerado pelo microcontrolador; CMD, linha bidirecional por onde vão os comandos e voltam as respostas; e D0–D3, os dados, usados em paralelo no modo de 4 bits (no modo de 1 bit, só D0). O cartão funciona entre 2,7 e 3,6 V, e as linhas CMD e D0–D3 precisam de pull-up (tipicamente 10 a 100 kΩ). Resistores de 22 a 33 Ω em série ajudam a evitar reflexões com clock alto, e uma chave no soquete pode indicar se há cartão.\n\nTodo acesso começa com um comando de 48 bits em CMD: bit de início, número do comando (CMD17 lê um bloco, CMD24 grava), argumento de 32 bits com o endereço, CRC7 e bit de fim. O cartão responde também em CMD e, em seguida, os dados passam por D0–D3 em blocos de 512 bytes, cada linha com o seu CRC16. Na gravação, o cartão segura D0 em 0 enquanto está ocupado. Ler ou gravar vários blocos seguidos (CMD18/CMD25) é muito mais rápido que blocos soltos.\n\nNa inicialização, o controlador usa clock de até 400 kHz e uma linha: identifica o cartão, lê a capacidade, dá um endereço relativo e só então passa para 4 bits e 25 MHz (Default Speed, até 12,5 MB/s) ou 50 MHz (High Speed, até 25 MB/s). Os modos UHS-I (SDR50, SDR104) exigem sinais de 1,8 V e um circuito que troque a tensão. Cartões SDSC (até 2 GB) endereçam em bytes; SDHC (até 32 GB) e SDXC (até 2 TB) endereçam em blocos e vêm formatados em FAT32 ou exFAT. O sistema de arquivos fica por conta de uma biblioteca como a FatFs.\n\nO STM32H743 tem dois SDMMC, compatíveis com SD 4.1, SDIO 4.0 e eMMC 4.51 (até 8 bits), com clock de até 125 MHz e DMA interno (IDMA). Cada um atende um cartão por vez. O IDMA do SDMMC1 não alcança a DTCM: deixe os buffers na AXI SRAM e, com a cache ligada, limpe ou invalide a cache antes e depois das transferências (confira no manual RM0433). O modo SDIO também serve para módulos Wi-Fi que usam essa interface.",
+      "example": "H743 WeAct: microSD no SDMMC1 em 4 bits — PC8 a PC11 (D0–D3), PC12 (CLK) e PD2 (CMD) — com 22 Ω em série, pull-ups de 47 kΩ e detecção em PD4 (ponte SB2). A BlackPill F411 também tem SDIO; Arduino Uno e Nano só leem cartão por SPI, bem mais devagar.",
+      "figure": "assets/glossary/sdmmc.svg",
+      "figure_caption": "O microSD da H743 no SDMMC1 (PC8 a PC12, PD2 e detecção em PD4) com 22 Ω e pull-ups de 47 kΩ, a leitura de um bloco de 512 bytes com o comando CMD17, as etapas de inicialização e velocidades e os tipos de cartão.",
+      "meaning": "Secure Digital / MultiMediaCard interface · controlador de cartão SD e eMMC",
       "position": 25,
-      "short": "Controlador de cartão SD em barramento de 1 ou 4 bits.",
+      "short": "Periférico que conversa com cartões SD, microSD e memórias eMMC pelo protocolo nativo, com 4 linhas de dados em paralelo e DMA próprio: bem mais rápido que ler o cartão por SPI.",
       "term": "SDMMC"
     },
     {
@@ -2381,7 +2384,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 14,
+  "schema": 15,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
