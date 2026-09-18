@@ -1075,10 +1075,41 @@ def migrate_to_23(con: sqlite3.Connection) -> None:
                 'e o WWDG com janela no H743, com prazos e fórmulas, e as boas práticas de uso.')
 
 
+def migrate_to_24(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'SysTick', category='fundamentos', after='Watchdog',
+        meaning='SysTick · temporizador de sistema do núcleo Arm Cortex-M',
+        short='Contador simples que faz parte do núcleo Cortex-M e gera a interrupção periódica, normalmente de 1 ms, que dá ao '
+              'programa a noção de tempo: HAL_Delay, HAL_GetTick, timeouts e o escalonador do RTOS dependem dele.',
+        detail=(
+            'O SysTick é um contador de 24 bits que desce do valor de recarga (LOAD) até zero no clock da CPU (ou no clock ÷ 8). Ao '
+            'chegar a zero, recarrega sozinho e, se habilitado, gera a interrupção SysTick_Handler. Como faz parte do núcleo Arm, e '
+            'não dos periféricos do fabricante, funciona igual em todos os Cortex-M: o mesmo código de tick roda num F103, num G474 '
+            'ou num H743.\n\n'
+            'Para um tick de 1 ms, LOAD = f_CPU ÷ 1000 − 1: 479 999 no H743 a 480 MHz, 71 999 na BluePill a 72 MHz. Como o '
+            'registrador tem 24 bits (até 16 777 215), o maior período possível a 480 MHz é de cerca de 35 ms. A HAL da ST configura '
+            'isso em HAL_Init() e incrementa a variável uwTick a cada interrupção; HAL_GetTick() devolve esse valor e HAL_Delay() '
+            'espera comparando-o. Para medir um trecho, subtraia dois valores de HAL_GetTick(): a subtração sem sinal continua certa '
+            'mesmo quando o contador de 32 bits dá a volta, depois de cerca de 49 dias.\n\n'
+            'Um RTOS como o FreeRTOS usa o SysTick como relógio do escalonador: a cada tick ele decide qual tarefa roda. Nesse caso '
+            'o CubeMX recomenda passar a base de tempo da HAL para outro timer (TIM6 é o comum), para os dois não disputarem a mesma '
+            'interrupção. A resolução de 1 ms não serve para medir microssegundos: para isso use o contador de ciclos da CPU '
+            '(DWT->CYCCNT, 1 ciclo = 2,08 ns a 480 MHz) ou um timer de 32 bits.\n\n'
+            'Cuidados: HAL_Delay() dentro de uma interrupção com prioridade igual ou maior que a do SysTick trava para sempre, '
+            'porque o tick nunca avança; o mesmo acontece com as interrupções desligadas. Mudar o clock do sistema exige '
+            'reconfigurar o SysTick (HAL_RCC_ClockConfig já faz isso). No modo Stop o SysTick para, então o tempo "some" durante o '
+            'sono; para contar tempo dormindo, use o RTC ou um LPTIM.'),
+        example='Existe em todas as STM32 do acervo (H743, H7R3, G474, F411 e F103), porque faz parte do núcleo Cortex-M. Arduino Uno '
+                'e Nano (ATmega328P, AVR) não têm SysTick: millis() e delay() usam o Timer0.',
+        figure='assets/glossary/systick.svg',
+        caption='O contador SysTick descendo e gerando a interrupção de 1 ms, as funções que dependem do tick (HAL_GetTick, '
+                'HAL_Delay, timeouts e RTOS), a medição de tempo e os valores de recarga para as placas STM32 do acervo.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
               15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20,
-              21: migrate_to_21, 22: migrate_to_22, 23: migrate_to_23}
+              21: migrate_to_21, 22: migrate_to_22, 23: migrate_to_23, 24: migrate_to_24}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

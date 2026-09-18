@@ -1381,7 +1381,7 @@ window.CATALOG = {
       "figure": null,
       "figure_caption": null,
       "meaning": "Interrupção",
-      "position": 15,
+      "position": 16,
       "short": "Evento que desvia a execução para uma rotina de atendimento.",
       "term": "Interrupt"
     },
@@ -1851,6 +1851,18 @@ window.CATALOG = {
       "position": 1,
       "short": "Interface de gravação e depuração dos Arm.",
       "term": "SWD"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "O SysTick é um contador de 24 bits que desce do valor de recarga (LOAD) até zero no clock da CPU (ou no clock ÷ 8). Ao chegar a zero, recarrega sozinho e, se habilitado, gera a interrupção SysTick_Handler. Como faz parte do núcleo Arm, e não dos periféricos do fabricante, funciona igual em todos os Cortex-M: o mesmo código de tick roda num F103, num G474 ou num H743.\n\nPara um tick de 1 ms, LOAD = f_CPU ÷ 1000 − 1: 479 999 no H743 a 480 MHz, 71 999 na BluePill a 72 MHz. Como o registrador tem 24 bits (até 16 777 215), o maior período possível a 480 MHz é de cerca de 35 ms. A HAL da ST configura isso em HAL_Init() e incrementa a variável uwTick a cada interrupção; HAL_GetTick() devolve esse valor e HAL_Delay() espera comparando-o. Para medir um trecho, subtraia dois valores de HAL_GetTick(): a subtração sem sinal continua certa mesmo quando o contador de 32 bits dá a volta, depois de cerca de 49 dias.\n\nUm RTOS como o FreeRTOS usa o SysTick como relógio do escalonador: a cada tick ele decide qual tarefa roda. Nesse caso o CubeMX recomenda passar a base de tempo da HAL para outro timer (TIM6 é o comum), para os dois não disputarem a mesma interrupção. A resolução de 1 ms não serve para medir microssegundos: para isso use o contador de ciclos da CPU (DWT->CYCCNT, 1 ciclo = 2,08 ns a 480 MHz) ou um timer de 32 bits.\n\nCuidados: HAL_Delay() dentro de uma interrupção com prioridade igual ou maior que a do SysTick trava para sempre, porque o tick nunca avança; o mesmo acontece com as interrupções desligadas. Mudar o clock do sistema exige reconfigurar o SysTick (HAL_RCC_ClockConfig já faz isso). No modo Stop o SysTick para, então o tempo \"some\" durante o sono; para contar tempo dormindo, use o RTC ou um LPTIM.",
+      "example": "Existe em todas as STM32 do acervo (H743, H7R3, G474, F411 e F103), porque faz parte do núcleo Cortex-M. Arduino Uno e Nano (ATmega328P, AVR) não têm SysTick: millis() e delay() usam o Timer0.",
+      "figure": "assets/glossary/systick.svg",
+      "figure_caption": "O contador SysTick descendo e gerando a interrupção de 1 ms, as funções que dependem do tick (HAL_GetTick, HAL_Delay, timeouts e RTOS), a medição de tempo e os valores de recarga para as placas STM32 do acervo.",
+      "meaning": "SysTick · temporizador de sistema do núcleo Arm Cortex-M",
+      "position": 15,
+      "short": "Contador simples que faz parte do núcleo Cortex-M e gera a interrupção periódica, normalmente de 1 ms, que dá ao programa a noção de tempo: HAL_Delay, HAL_GetTick, timeouts e o escalonador do RTOS dependem dele.",
+      "term": "SysTick"
     },
     {
       "aliases": [],
@@ -2411,7 +2423,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 23,
+  "schema": 24,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",

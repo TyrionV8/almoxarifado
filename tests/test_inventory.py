@@ -59,7 +59,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_database_driven_interface_content(self):
         glossary = {t['term'] for t in self.data['glossary']}
-        self.assertEqual(len(glossary), 101)
+        self.assertEqual(len(glossary), 102)
         categories = {c['id'] for c in self.data['glossary_categories']}
         self.assertTrue(all(t['category_id'] in categories for t in self.data['glossary']))
         self.assertTrue(all(len(c['tips']) == 3 for c in self.data['glossary_categories']))
@@ -67,7 +67,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(names), len(set(names)), 'sinônimo repetido ou igual a outro termo')
         figures = {t['term']: t['figure'] for t in self.data['glossary'] if t['figure']}
         # Termos documentados no modelo de QSPI: figura e explicação em vários parágrafos.
-        documented = ['QSPI', 'SPI', 'USART', 'UART', 'LPUART', 'I2S', 'I2C', 'USB', 'FDCAN', 'SDMMC', 'Ethernet', 'PHY', 'ADC', 'DAC', 'PWM', 'Timer', 'HRTIM', 'Watchdog']
+        documented = ['QSPI', 'SPI', 'USART', 'UART', 'LPUART', 'I2S', 'I2C', 'USB', 'FDCAN', 'SDMMC', 'Ethernet', 'PHY', 'ADC', 'DAC', 'PWM', 'Timer', 'HRTIM', 'Watchdog', 'SysTick']
         self.assertEqual(sorted(figures), sorted(documented))
         for term in documented:
             detail = next(t['detail'] for t in self.data['glossary'] if t['term'] == term)
