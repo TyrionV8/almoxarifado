@@ -878,9 +878,45 @@ def migrate_to_17(con: sqlite3.Connection) -> None:
                 'bit e os registradores MDIO usados no diagnóstico.')
 
 
+def migrate_to_18(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'ADC',
+        meaning='Analog-to-Digital Converter · conversor analógico-digital',
+        short='Mede uma tensão e a transforma em número: 0 V vira 0 e a tensão de referência vira o maior código. É a porta de '
+              'entrada de sensores analógicos, potenciômetros, baterias e sinais de áudio.',
+        detail=(
+            'O ADC dos microcontroladores é do tipo SAR (aproximações sucessivas). Primeiro, um capacitor interno carrega com a '
+            'tensão do pino durante o tempo de amostragem (sample and hold); depois o conversor compara essa tensão com frações da '
+            'referência, bit a bit, do mais significativo ao menos significativo, como uma busca binária. O resultado é código = '
+            'V_entrada ÷ VREF+ × (2ᴺ − 1). Com VREF+ = 3,3 V, 1 LSB vale cerca de 806 µV em 12 bits e 50 µV em 16 bits. A entrada '
+            'precisa ficar entre 0 V e VREF+; tensões maiores exigem divisor resistivo.\n\n'
+            'Resolução não é precisão. Os bits informados dizem quantos degraus existem; ruído, erros de ganho e de offset e não '
+            'linearidade decidem quantos são confiáveis. O número útil é o ENOB (bits efetivos): no STM32H743 rev V, o ADC de 16 bits '
+            'tem ENOB típico de 12,2 bits em modo single-ended e 13,2 em modo diferencial (DS12110, tabela 186). Para aproveitar mais '
+            'bits: calibre o ADC ao ligar, use média ou a sobreamostragem por hardware, entrada diferencial, uma referência limpa e '
+            'capacitores de desacoplamento perto de VDDA e VREF+.\n\n'
+            'O tempo de amostragem precisa bastar para o capacitor carregar através da resistência da fonte: um divisor de 100 kΩ '
+            'ou um sensor de alta impedância exige tempo maior (a tabela 185 do DS12110 relaciona tempo mínimo e resistência) ou um '
+            'buffer com amplificador operacional. Pela regra de Nyquist, a taxa de amostragem precisa passar de 2× a maior '
+            'frequência do sinal, com um filtro RC antes do pino para evitar aliasing. Conversões contínuas devem usar DMA e ser '
+            'disparadas por um timer, para o intervalo entre amostras ser exato.\n\n'
+            'O STM32H743 tem três ADC de 16 bits (resolução configurável em 16, 14, 12, 10 ou 8 bits), com até 20 canais externos '
+            'cada, modos simples e varredura, conversão simultânea ou intercalada entre ADCs, entrada diferencial, sobreamostragem, '
+            'watchdog analógico (alarme de faixa) e disparo por TIM1, TIM2, TIM3, TIM4, TIM6, TIM8, TIM15, HRTIM e LPTIM1. Na '
+            'revisão V, em 16 bits, chega a 3,6 MSPS nos canais diretos, 2,9 MSPS nos rápidos e 1 MSPS nos lentos. O ADC3 também '
+            'lê o sensor de temperatura interno e a referência interna VREFINT.'),
+        example='Um ADC de 12 bits oferece 4096 códigos. H743 WeAct: entradas livres em PA0–PA3, PA5, PB0, PB1, PC0, PC1, PC4, PC5 e '
+                'nos pads PC2_C/PC3_C, com VREF+ ligado ao 3V3 pelo R9. O ADS1256 do TCC é um ADC externo de 24 bits, não o ADC de '
+                '12 bits do F411.',
+        figure='assets/glossary/adc.svg',
+        caption='O caminho do sinal no ADC do H743 (fonte, pino, multiplexador, amostragem, conversor SAR e DMA) com a fórmula do '
+                'código, os degraus de quantização, 16 bits nominais contra o ENOB medido, a carga do capacitor de amostragem e as '
+                'taxas máximas por tipo de canal.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17}
+              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
