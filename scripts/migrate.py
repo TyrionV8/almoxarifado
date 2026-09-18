@@ -947,9 +947,41 @@ def migrate_to_19(con: sqlite3.Connection) -> None:
                 'de um seno com timer, DMA e tabela antes e depois do filtro RC, e a comparação entre DAC e PWM filtrado.')
 
 
+def migrate_to_20(con: sqlite3.Connection) -> None:
+    document_term(
+        con, 'PWM',
+        meaning='Pulse-Width Modulation · modulação por largura de pulso',
+        short='Liga e desliga uma saída muito rápido, com frequência fixa, variando só a fração do tempo em que ela fica ligada. A '
+              'carga "enxerga" a média, e assim um pino digital controla brilho, velocidade e potência.',
+        detail=(
+            'Um timer conta de 0 até ARR (o período) e recomeça; um registrador de comparação, o CCR, define até onde a saída fica em '
+            '1. O duty cycle é CCR ÷ (ARR + 1) e a frequência é f_timer ÷ ((PSC + 1) × (ARR + 1)), em que PSC é o divisor de entrada. '
+            'Mudar o CCR muda a largura do pulso sem mudar a frequência, e o hardware só aplica o novo valor no fim do período, sem '
+            'cortar um pulso ao meio.\n\n'
+            'Frequência e resolução disputam o mesmo clock: com o timer a 240 MHz, 20 kHz deixam 12 000 degraus de duty (cerca de '
+            '13,6 bits), mas 1 MHz deixa só 240. Escolha pela carga: LED acima de 1 kHz para não piscar, motor DC entre 16 e 25 kHz '
+            'para ficar fora do audível, servo em 50 Hz com pulso de 1 a 2 ms, fontes chaveadas em 100 kHz ou mais (onde o HRTIM '
+            'ajuda). Para virar tensão contínua, como um DAC simples, o PWM passa por um filtro RC.\n\n'
+            'O pino não fornece potência: motores, fitas de LED e resistências precisam de transistor, MOSFET ou driver (ponte H), '
+            'com diodo de roda livre em cargas indutivas. Em meia ponte ou ponte completa, os timers avançados geram pares '
+            'complementares (CHx e CHxN) com tempo morto, um intervalo em que os dois transistores ficam desligados para nunca '
+            'conduzirem juntos, e uma entrada de freio (BKIN) que desliga as saídas por hardware numa falha. O alinhamento central '
+            '(contagem para cima e para baixo) reduz ruído no controle de motores.\n\n'
+            'No STM32H743 quase todo timer gera PWM: TIM1 e TIM8 (avançados, com saídas complementares e tempo morto), TIM2 e TIM5 '
+            '(32 bits), TIM3, TIM4, TIM12 a TIM17 e os LPTIM, com clock de até 240 MHz, além do HRTIM, com resolução de 2,1 ns. '
+            'Canais do mesmo timer dividem a frequência e só variam o duty; frequências diferentes pedem timers diferentes. O DMA '
+            'pode trocar o CCR a cada período, o que serve para fitas de LED endereçáveis (WS2812) ou formas de onda.'),
+        example='H743 WeAct: TIM2_CH1 a CH4 em PA0–PA3, livres; TIM1_CH1/CH1N em PE9/PE8 para meia ponte; a luz de fundo do display '
+                '(PE10) é TIM1_CH2N, então o brilho do LCD se ajusta por PWM. O PIC12F675 não tem PWM por hardware e o PIC12F683 tem '
+                'um CCP. No Uno, analogWrite() gera PWM de cerca de 490 ou 980 Hz.',
+        figure='assets/glossary/pwm.svg',
+        caption='Como o timer gera o PWM (contador, ARR e CCR) com duty de 25 e 75 %, as fórmulas de frequência e duty, a troca '
+                'entre frequência e resolução com o timer a 240 MHz e as saídas complementares com tempo morto em PE9/PE8.')
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
-              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19}
+              15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20}
 
 
 def migrate(path: Path = db.DATABASE) -> int:
