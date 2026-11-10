@@ -1106,10 +1106,16 @@ def migrate_to_24(con: sqlite3.Connection) -> None:
                 'HAL_Delay, timeouts e RTOS), a medição de tempo e os valores de recarga para as placas STM32 do acervo.')
 
 
+def migrate_to_25(con):
+    from purchase_20261026 import migrate as register_purchase
+    register_purchase(con)
+
+
 MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4, 5: migrate_to_5, 6: migrate_to_6, 7: migrate_to_7, 8: migrate_to_8,
               9: migrate_to_9, 10: migrate_to_10, 11: migrate_to_11, 12: migrate_to_12, 13: migrate_to_13, 14: migrate_to_14,
               15: migrate_to_15, 16: migrate_to_16, 17: migrate_to_17, 18: migrate_to_18, 19: migrate_to_19, 20: migrate_to_20,
-              21: migrate_to_21, 22: migrate_to_22, 23: migrate_to_23, 24: migrate_to_24}
+              21: migrate_to_21, 22: migrate_to_22, 23: migrate_to_23, 24: migrate_to_24,
+              25: migrate_to_25}
 
 
 def migrate(path: Path = db.DATABASE) -> int:

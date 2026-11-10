@@ -112,5 +112,11 @@
     "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx_BoardShape Board Shape 外形 V12.pdf",
     "sha256": "222eb3b6b193e9a1deb30acb06c254adc029a6bcf43aaa79a03d0db99fa6a7fb",
     "retrieved": "2026-09-17"
+  },
+  {
+    "file": "assets/documents/tangnano9k-schematic.pdf",
+    "url": "https://dl.sipeed.com/fileList/TANG/Nano%209K/2_Schematic/Tang_Nano_9k_3672_Schematic.pdf",
+    "sha256": "71ccf1b7731589c8bc5b4c1dcf0c8906f52831785c703732d43a70f01ec574ec",
+    "retrieved": "2026-10-26"
   }
 ]

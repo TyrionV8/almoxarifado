@@ -5,7 +5,7 @@ const COLUMN_STORAGE_KEY = 'almoxarifado-column-preferences-v2';
 const differentScale = '<span class="muted" title="Esta arquitetura usa outra escala de desempenho">Escala diferente</span>';
 
 let columnOrder = [], visibleColumns = new Set();
-const columnByKey = key => C.table_columns.find(c => c.key === key);
+const columnByKey = key => categoryColumns().find(c => c.key === key);
 const groupById = id => C.column_groups.find(g => g.id === id);
 const columnValue = (c, column) => c[column.field || column.key];
 
@@ -49,10 +49,10 @@ function sortValue(c, column) {
 /* ---------- preferências de colunas (localStorage) ---------- */
 
 function loadColumnPreferences() {
-  columnOrder = C.table_columns.map(c => c.key);
+  columnOrder = categoryColumns().map(c => c.key);
   visibleColumns = new Set(columnOrder);
   try {
-    const saved = JSON.parse(window.localStorage.getItem(COLUMN_STORAGE_KEY));
+    const saved = JSON.parse(window.localStorage.getItem(columnStorageKey()));
     if (!saved) return;
     const valid = saved.order.filter(columnByKey);
     columnOrder = [...valid, ...columnOrder.filter(key => !valid.includes(key))];
@@ -63,12 +63,14 @@ function loadColumnPreferences() {
 
 function saveColumnPreferences() {
   try {
-    window.localStorage.setItem(COLUMN_STORAGE_KEY, JSON.stringify({order: columnOrder, visible: [...visibleColumns]}));
+    window.localStorage.setItem(columnStorageKey(), JSON.stringify({order: columnOrder, visible: [...visibleColumns]}));
   } catch { /* navegador sem armazenamento */ }
 }
 
+const columnStorageKey = () => state.category === 'microcontroladores' ? COLUMN_STORAGE_KEY : `${COLUMN_STORAGE_KEY}-${state.category}`;
+
 function resetColumns() {
-  columnOrder = C.table_columns.map(c => c.key);
+  columnOrder = categoryColumns().map(c => c.key);
   visibleColumns = new Set(columnOrder);
   saveColumnPreferences();
   renderColumnMenu();
@@ -96,7 +98,7 @@ const activeColumns = () => columnOrder.filter(key => visibleColumns.has(key)).m
 function renderColumnMenu() {
   const list = $('#column-picker-list');
   if (!list) return;
-  $('#visible-column-count').textContent = `${visibleColumns.size}/${C.table_columns.length}`;
+  $('#visible-column-count').textContent = `${visibleColumns.size}/${categoryColumns().length}`;
   list.innerHTML = columnOrder.map((key, i) => {
     const c = columnByKey(key), label = esc(c.label);
     return `<div class="column-option">
@@ -112,24 +114,27 @@ function renderColumnMenu() {
 /* ---------- página ---------- */
 
 function catalogView() {
-  const category = C.categories[0];
-  const estimatedFamilies = [...new Set(C.components.filter(c => c.estimated).map(c => c.family))];
-  const estimatedUnits = C.components.filter(c => c.estimated).reduce((n, c) => n + c.stock.total, 0);
+  const category = currentCategory(), components = sectorComponents();
+  const estimatedFamilies = [...new Set(components.filter(c => c.estimated).map(c => c.family))];
+  const estimatedUnits = components.filter(c => c.estimated).reduce((n, c) => n + c.stock.total, 0);
   const benchmarkNotes = C.table_columns
     .filter(column => column.format === 'metric')
     .flatMap(column => C.components.filter(c => c[`${column.key}_note`])
       .map(c => `<b>${esc(column.label)} da ${esc(c.name)} (*):</b> ${esc(c[`${column.key}_note`])}`));
   return `
+    <nav class="sector-nav" aria-label="Setores do almoxarifado">
+      ${C.categories.map(c => `<button data-category="${esc(c.id)}" class="${c.id === state.category ? 'active' : ''}" aria-pressed="${c.id === state.category}">${esc(c.name)} <span>${C.components.filter(p => p.category_id === c.id).length}</span></button>`).join('')}
+    </nav>
     <div class="page-heading">
       <div><div class="eyebrow">DO COMPONENTE À IDEIA</div><h1>${esc(category.name)}</h1><p>Conheça o que você tem. Escolha o que seu projeto precisa.</p></div>
-      <span class="edition">CATÁLOGO<br><b>01 / ${esc(category.name.toUpperCase())}</b></span>
+      <span class="edition">CATÁLOGO<br><b>${String(C.categories.indexOf(category) + 1).padStart(2, '0')} / ${esc(category.name.toUpperCase())}</b></span>
     </div>
     <section class="stats" aria-label="Resumo do acervo"></section>
     <div class="toolbar">
       <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Buscar componente, recurso ou aplicação…" aria-label="Buscar componentes"></label>
       <select id="family" aria-label="Filtrar família">
         <option value="">Todas as famílias</option>
-        ${C.families.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('')}
+        ${C.families.filter(f => components.some(c => c.family === f.id)).map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('')}
       </select>
       <select id="kind" aria-label="Filtrar formato">
         <option value="">Chips e placas</option><option value="chip">Somente chips</option><option value="placa">Somente placas</option>
@@ -145,7 +150,7 @@ function catalogView() {
     <div class="table-caption"><span id="result-count"></span><span>Clique no nome para abrir a ficha · na quantidade para o histórico</span></div>
     <div class="table-wrap"><table id="inventory"><thead></thead><tbody id="rows"></tbody></table></div>
     ${estimatedUnits ? `<p class="footnote">* As ${estimatedUnits} unidades ${esc(estimatedFamilies.join(' e '))} são estimativas do inventário.</p>` : ''}
-    <p id="performance-note" class="footnote"><b>Escalas de desempenho:</b> MIPS significa milhões de instruções por segundo e é apresentado para PIC e ATmega328P. DMIPS é o resultado normalizado do teste Dhrystone; CoreMark é outro teste padronizado. MIPS, DMIPS e CoreMark não devem ser comparados diretamente entre si. ${benchmarkNotes.join(' ')}</p>
+    ${category.id === 'microcontroladores' ? `<p id="performance-note" class="footnote"><b>Escalas de desempenho:</b> MIPS significa milhões de instruções por segundo e é apresentado para PIC e ATmega328P. DMIPS é o resultado normalizado do teste Dhrystone; CoreMark é outro teste padronizado. MIPS, DMIPS e CoreMark não devem ser comparados diretamente entre si. ${benchmarkNotes.join(' ')}</p>` : ''}
     <section class="bench-note">
       <span>↗</span>
       <div><b>Uma ficha técnica que você pode entender.</b><p>Passe o cursor sobre um termo sublinhado para uma explicação rápida. Clique para aprofundar.</p></div>
@@ -154,11 +159,12 @@ function catalogView() {
 }
 
 function renderStats() {
-  const families = C.families.filter(f => C.components.some(c => c.family === f.id));
-  const sum = key => C.components.reduce((n, c) => n + c.stock[key], 0);
-  const estimated = C.components.some(c => c.estimated);
+  const components = sectorComponents();
+  const families = C.families.filter(f => components.some(c => c.family === f.id));
+  const sum = key => components.reduce((n, c) => n + c.stock[key], 0);
+  const estimated = components.some(c => c.estimated);
   $('.stats').innerHTML = `
-    <div class="tone-green"><span>Modelos no acervo</span><strong>${C.components.length} <small>modelos</small></strong></div>
+    <div class="tone-green"><span>Modelos neste setor</span><strong>${components.length} <small>modelos</small></strong></div>
     <div class="tone-teal"><span>Disponíveis / total</span><strong>${sum('available')}/${sum('total')} <small>unidades${estimated ? '*' : ''}</small></strong></div>
     <div class="tone-blue"><span>Em uso agora</span><strong>${sum('in_use')} <small>unidades</small></strong></div>
     <div class="tone-orange"><span>Famílias</span><strong>${String(families.length).padStart(2, '0')} <small>${families.map(f => esc(f.name)).join(' · ')}</small></strong></div>`;
@@ -192,7 +198,7 @@ function fitDetailWidth() {
 function filteredComponents() {
   const query = $('#search').value.toLocaleLowerCase();
   const family = $('#family').value, kind = $('#kind').value;
-  const items = C.components.filter(c => JSON.stringify(c).toLocaleLowerCase().includes(query)
+  const items = sectorComponents().filter(c => JSON.stringify(c).toLocaleLowerCase().includes(query)
     && (!family || c.family === family) && (!kind || c.kind === kind));
   const column = columnByKey(state.sortKey);
   if (column) {

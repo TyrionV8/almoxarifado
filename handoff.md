@@ -1,6 +1,6 @@
 # Handoff — Almoxarifado
 
-Atualizado em 17/09/2026. Este documento é a entrada de contexto para agentes futuros.
+Atualizado em 26/10/2026. Este documento é a entrada de contexto para agentes futuros. A seção 11 registra os novos setores e prevalece sobre os retratos anteriores de quantidade e versão.
 
 ## 1. Objetivo e contrato com o usuário
 
@@ -277,3 +277,16 @@ Comitar somente arquivos desta tarefa. `git pull` recebe atualizações, `git pu
 7. Resolvido pelo próprio usuário via `scripts/server.py` em 13/09/2026: apagou o descarte do Uno criado pela migração (Uno voltou a 1/1) e registrou `descarte_em_uso` do Nano soldado (“tentei dessoldar e derreti ela”), deixando o Nano em 1/1. Registros do usuário são a fonte de verdade; não recriar os da migração. O teste de interface usa um catálogo de fixture para o histórico e não depende desses números.
 
 Para qualquer etapa manual, seguir instruções do usuário: concluir trabalho independente primeiro, fornecer seção “Ação manual necessária”, comandos mínimos explicados e diretório, nunca pedir senha, aguardar “feito” ou saída e continuar.
+
+## 11. Atualização de 26/10/2026 — Tang Nano 9K e Periféricos
+
+Pedido: cadastrar os kits dos dois anúncios enviados, mantendo o padrão de imagens técnicas simples/completas, e criar o setor **Periféricos** para LCD e câmera. O usuário confirmou expressamente que a H743 é **a mesma unidade já cadastrada**: não foi criada outra compra nem alterado seu histórico. Sua ficha recebeu a evidência do anúncio.
+
+- Banco atual: `PRAGMA user_version=25`, 14 modelos, 111 termos. Novos setores: **Lógica programável**, com a Sipeed Tang Nano 9K, e **Periféricos**, com LCD RGB de 4,3″ (480 × 272) e câmera WeAct M12. São três componentes novos com uma unidade cada, registrados como compras informadas em 26/10/2026, sem declarar a data exata, recebimento ou teste físico. Display de 0,96″ continua como recurso da H743.
+- Migração e cadastro: `scripts/migrate.py` → `scripts/purchase_20261026.py`. `categories` recebeu `position` e `columns_json`; a exportação os converte para ordem e lista de colunas por setor. A tabela original de 23 colunas permanece para microcontroladores; cada setor novo tem sete colunas adequadas aos seus componentes. Preferências de colunas são separadas por setor; a chave antiga de microcontroladores foi preservada.
+- Interface: seleção de setor acima da tabela, famílias e saldos calculados por setor; contador lateral representa os 14 modelos. Comparação pode selecionar itens de setores diferentes. Câmera e LCD não têm datasheet atribuído, portanto essas abas são ocultadas. O documento da Tang é um **esquema elétrico**, com a aba “Leitura do esquema”. Não atribuir frequência máxima de CPU à FPGA.
+- Imagens: seis PNGs novos, gerados por `scripts/make_purchase_pinouts.py`, inspecionados visualmente; fundo branco, cores por função, simples primeiro. Mapa completo da Tang traz 48 posições físicas e separa bancos de 1,8/3,3 V. O mapa do LCD é da **porta da placa**, e o da câmera é dos **sinais da H743**; não são identificações presumidas dos módulos adquiridos.
+- Evidências, limites e fontes: `docs/COMPRAS-2026-10-26.md`. Anúncios originais em `docs/evidence/`; esquema Sipeed local, texto extraído e hash em `data/sources.json`; restrições de pinos da tela em `docs/references/tangnano9k-lcd43.cst`. As folhas usam a ordem física do mapa oficial Sipeed; as cores RGB e sinais de sincronismo são confrontados com o exemplo oficial por teste.
+- Pendências de identificação: M12 descreve a lente, **não confirma o sensor ou sua resolução**. Não presumir OV2640/OV7725. O código exato do painel LCD e a presença de toque também não foram informados. Isso não impede o cadastro concluído.
+
+Validação: migração aplicada primeiro em cópia temporária do banco, com comparação de todos os movimentos preexistentes, saldos e segunda execução sem alterações. Os 25 testes Python e os fluxos de interface em documento simulado passaram; a execução dos testes de servidor precisou da permissão normal para abrir sockets locais. Chrome real abriu `index.html` por `file://`, carregou as seis imagens, verificou troca de setor e persistência separada das colunas, sem exceções de JavaScript. Layout conferido em 1440, 900 e 480 px, incluindo ficha expandida no celular, sem transbordamento horizontal da página; a tabela mantém sua rolagem própria. Sem commit ou envio ao remoto nesta tarefa.

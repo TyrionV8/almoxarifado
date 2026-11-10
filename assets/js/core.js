@@ -11,6 +11,7 @@ const tone = name => `tone-${esc(name || 'slate')}`;
 
 const state = {
   view: 'catalogo',
+  category: 'microcontroladores',
   expanded: null,       // id do componente com a ficha aberta
   tab: 'specs',         // aba ativa da ficha aberta
   sortKey: null,
@@ -26,6 +27,7 @@ let C, terms, termByLowerName, termPattern, componentById, familyById, movementT
 function loadCatalog(catalog) {
   C = catalog;
   window.CATALOG = catalog;
+  if (!C.categories.some(c => c.id === state.category)) state.category = C.categories[0].id;
   terms = new Map(C.glossary.map(t => [t.term, t]));
   // Sinônimos (aliases) apontam para o termo principal: "Quad-SPI" e "QUADSPI" abrem QSPI.
   termByLowerName = new Map(C.glossary.flatMap(t => [t.term, ...(t.aliases || [])].map(name => [name.toLowerCase(), t.term])));
@@ -40,6 +42,10 @@ function loadCatalog(catalog) {
   pinGuides = new Map();
   C.pin_guides.forEach(pin => pinGuides.set(pin.guide, [...(pinGuides.get(pin.guide) || []), pin]));
 }
+
+const currentCategory = () => C.categories.find(c => c.id === state.category);
+const sectorComponents = () => C.components.filter(c => c.category_id === state.category);
+const categoryColumns = () => currentCategory().columns || C.table_columns;
 
 /* Transforma os termos do glossário encontrados no texto em botões com explicação. */
 function annotate(text) {

@@ -52,10 +52,10 @@ assert.match($('#performance-note').textContent, /STM32F103RB/);
 // Quantidade: disponíveis / total, calculada pelas movimentações.
 const catalog = run('C');
 const C_TERMS = catalog.glossary.length; // o número exato de termos é conferido em tests/test_inventory.py
-for (const c of catalog.components) assert.equal(stockOf(c.id), `${c.stock.available}/${c.stock.total}${c.estimated ? '*' : ''}`);
-const sum = key => catalog.components.reduce((n, c) => n + c.stock[key], 0);
+for (const c of catalog.components.filter(c => c.category_id === 'microcontroladores')) assert.equal(stockOf(c.id), `${c.stock.available}/${c.stock.total}${c.estimated ? '*' : ''}`);
+const sum = key => catalog.components.filter(c => c.category_id === 'microcontroladores').reduce((n, c) => n + c.stock[key], 0);
 assert.match($('.stats').textContent, new RegExp(`${sum('available')}/${sum('total')}`));
-assert.equal($('#component-count').textContent, '11');
+assert.equal($('#component-count').textContent, '14');
 
 // Colunas configuráveis.
 {
@@ -81,6 +81,37 @@ input('#search', 'nada-corresponde'); assert.equal(count(), 0); assert.match($('
 input('#search', ''); assert.equal(count(), 11);
 choose('#family', 'STM32'); assert.equal(count(), 5);
 choose('#family', '');
+
+// Setores têm seus próprios componentes, colunas e preferências; seleção continua disponível entre setores.
+assert.equal($$('[data-category]').length, 3);
+click('[data-category="logica-programavel"]'); resetSelects(); run('drawRows()');
+assert.equal(count(), 1);
+assert.equal($('#breadcrumb').textContent, 'Lógica programável');
+assert.match($('#inventory').textContent, /8.640 LUT4/);
+assert.doesNotMatch($('#inventory').textContent, /NaN|undefined/);
+assert.equal($('#performance-note'), null);
+click('[data-expand="tangnano9k"]'); click('[data-tab="pins"]');
+assert.equal($$('.pinout-image').length, 2);
+assert.equal($('[data-tab="reader"]').textContent, 'Leitura do esquema');
+click('[data-category="perifericos"]'); resetSelects(); run('drawRows()');
+assert.equal(count(), 2);
+assert.equal($('#breadcrumb').textContent, 'Periféricos');
+assert.equal($$('[data-column-toggle]').length, 7);
+assert.match($('#inventory').textContent, /480 × 272/);
+assert.doesNotMatch($('#inventory').textContent, /NaN|undefined|CoreMark|MHz/);
+click('[data-expand="camera-m12"]');
+assert.match($('.tab-content').textContent, /A confirmar/);
+assert.equal($('[data-tab="reader"]'), null);
+assert.equal($('[data-tab="pdf"]'), null);
+click('[data-tab="pins"]');
+assert.equal($$('.pinout-image').length, 2);
+assert.match($('.tab-content').textContent, /Sensor não identificado/);
+click('[data-open-history="lcd43"]');
+assert.match($('.timeline').textContent, /Compra/);
+click('[data-category="microcontroladores"]'); resetSelects(); run('drawRows()');
+assert.equal(count(), 11);
+assert.equal($$('[data-column-toggle]').length, 23);
+assert.equal($('#visible-column-count').textContent, '23/23');
 
 // Ficha e abas.
 click('[data-expand="blackpill"]');

@@ -99,6 +99,12 @@ footer span { letter-spacing: 0; font-weight: 400; }
 .edition { text-align: right; font-size: 12px; line-height: 2; letter-spacing: 1px; color: #7d8c83; }
 .edition b { font-size: 11px; font-weight: 700; color: var(--green); }
 
+nav.sector-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+nav.sector-nav button { width: auto; padding: 10px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--green); }
+nav.sector-nav button:hover { background: #e5f5ec; color: var(--green); }
+nav.sector-nav button.active { background: var(--green); color: white; box-shadow: none; }
+.sector-nav button span { border-radius: 20px; padding: 1px 7px; background: #80808020; font-size: 12px; }
+
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
 .stats > div { position: relative; overflow: hidden; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px 14px; }
 .stats > div::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--tone); }

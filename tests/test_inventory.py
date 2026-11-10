@@ -40,7 +40,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_inventory_scope_and_stock(self):
         parts = self.data['components']
-        self.assertEqual(len(parts), 11)
+        self.assertEqual(len(parts), 14)
         self.assertEqual(len(self.data['tools']), 3)
         for part in parts:
             stock = part['stock']
@@ -59,7 +59,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_database_driven_interface_content(self):
         glossary = {t['term'] for t in self.data['glossary']}
-        self.assertEqual(len(glossary), 102)
+        self.assertEqual(len(glossary), 111)
         categories = {c['id'] for c in self.data['glossary_categories']}
         self.assertTrue(all(t['category_id'] in categories for t in self.data['glossary']))
         self.assertTrue(all(len(c['tips']) == 3 for c in self.data['glossary_categories']))
@@ -87,10 +87,12 @@ class InventoryTests(unittest.TestCase):
         guides = {p['guide'] for p in self.data['pin_guides']}
         families = {f['id'] for f in self.data['families']}
         for part in self.data['components']:
-            self.assertIn(part['processing_class'], classes, part['id'])
-            self.assertIn(part['pin_guide'], guides, part['id'])
             self.assertIn(part['family'], families, part['id'])
-            self.assertTrue(part['subtitle'] and part['flash_short'] and part['accelerators'], part['id'])
+            self.assertTrue(part['subtitle'], part['id'])
+            if part['category_id'] == 'microcontroladores':
+                self.assertIn(part['processing_class'], classes, part['id'])
+                self.assertIn(part['pin_guide'], guides, part['id'])
+                self.assertTrue(part['flash_short'] and part['accelerators'], part['id'])
 
     def test_confirmed_variants(self):
         p = self.parts
@@ -123,8 +125,10 @@ class InventoryTests(unittest.TestCase):
     def test_every_local_asset(self):
         for p in self.data['components']:
             for directory, key in [('assets/documents', 'datasheet'), ('assets/pinouts', 'pinout'), ('assets/documents', 'pinout_source')]:
-                self.assertTrue((ROOT / directory / p[key]).is_file(), (p['id'], key))
-            self.assertTrue((ROOT / 'data/readers' / p['datasheet'].replace('.pdf', '.js')).is_file())
+                if p.get(key):
+                    self.assertTrue((ROOT / directory / p[key]).is_file(), (p['id'], key))
+            if p.get('datasheet'):
+                self.assertTrue((ROOT / 'data/readers' / p['datasheet'].replace('.pdf', '.js')).is_file())
             if p.get('schematic'):
                 self.assertTrue((ROOT / 'assets/documents' / p['schematic']).is_file())
             if p.get('evidence'):
@@ -202,6 +206,42 @@ class InventoryTests(unittest.TestCase):
         gpio = [n for n in gen.P1 + gen.P2 if n not in gen.POWER]
         self.assertEqual((len(gpio), len(set(gpio))), (76, 76))
         self.assertIn('76 nos headers', self.parts['h743']['gpio'])
+
+    def test_purchase_sectors_and_unknown_camera(self):
+        categories = {c['id']: c for c in self.data['categories']}
+        self.assertEqual([c['id'] for c in self.data['categories']],
+                         ['microcontroladores', 'logica-programavel', 'perifericos'])
+        for category_id, ids in [('logica-programavel', {'tangnano9k'}), ('perifericos', {'lcd43', 'camera-m12'})]:
+            parts = [p for p in self.data['components'] if p['category_id'] == category_id]
+            self.assertEqual({p['id'] for p in parts}, ids)
+            self.assertTrue(categories[category_id]['columns'])
+            for part in parts:
+                self.assertEqual(part['stock']['total'], 1)
+                self.assertEqual(len(part['pinouts']), 2)
+                for pinout in part['pinouts']:
+                    self.assertTrue((ROOT / 'assets/pinouts' / pinout['file']).read_bytes().startswith(PNG))
+                self.assertNotIn('clock', part, 'não atribuir frequência de CPU a periféricos/FPGA')
+        self.assertIn('A confirmar', self.parts['camera-m12']['sensor'])
+        self.assertNotIn('datasheet', self.parts['camera-m12'], 'não atribuir datasheet de sensor desconhecido')
+        self.assertEqual(self.parts['h743']['stock']['total'], 1, 'mesma placa confirmada, sem duplicar compra')
+        self.assertFalse(any(m['date'] == '2026-10-26' for m in self.parts['h743']['history']))
+
+    def test_tang_and_lcd_pinmap_matches_official_example(self):
+        import make_purchase_pinouts as gen
+        import re
+        self.assertEqual((len(gen.LEFT), len(gen.RIGHT)), (24, 24))
+        pins = [p for p in gen.LEFT + gen.RIGHT if isinstance(p, int)]
+        self.assertEqual(len(pins), len(set(pins)))
+        cst = (ROOT / 'docs/references/tangnano9k-lcd43.cst').read_text()
+        assigned = {name: int(pin) for name, pin in re.findall(r'IO_LOC "([^"]+)" (\d+);', cst)}
+        for i in range(5):
+            self.assertEqual(gen.LCD_PORT[7+i][1], f'FPGA {assigned[f"LCD_R[{i}]"]}')
+            self.assertEqual(gen.LCD_PORT[23+i][1], f'FPGA {assigned[f"LCD_B[{i}]"]}')
+        for i in range(6):
+            self.assertEqual(gen.LCD_PORT[14+i][1], f'FPGA {assigned[f"LCD_G[{i}]"]}')
+        for index, name in [(29, 'LCD_CLK'), (31, 'LCD_HYNC'), (32, 'LCD_SYNC'), (33, 'LCD_DEN')]:
+            self.assertEqual(gen.LCD_PORT[index][1], f'FPGA {assigned[name]}')
+        self.assertEqual(len(gen.LCD_PORT), 40)
 
     def test_sql_roundtrip(self):
         restored = sqlite3.connect(':memory:')

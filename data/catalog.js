@@ -1,8 +1,198 @@
 window.CATALOG = {
   "categories": [
     {
+      "columns": null,
       "id": "microcontroladores",
-      "name": "Microcontroladores"
+      "name": "Microcontroladores",
+      "position": 1
+    },
+    {
+      "columns": [
+        {
+          "digits": null,
+          "field": null,
+          "format": "component",
+          "group_id": "acervo",
+          "help": null,
+          "key": "name",
+          "label": "Componente",
+          "position": 1,
+          "term": null,
+          "unit": null,
+          "width": 270
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "family",
+          "group_id": "acervo",
+          "help": null,
+          "key": "family",
+          "label": "Família",
+          "position": 2,
+          "term": null,
+          "unit": null,
+          "width": 90
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "stock",
+          "group_id": "acervo",
+          "help": "Unidades disponíveis / total no acervo. Registre compras, uso e descartes na aba Histórico.",
+          "key": "stock",
+          "label": "Disponível / total",
+          "position": 3,
+          "term": null,
+          "unit": null,
+          "width": 130
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "logic",
+          "label": "Recursos lógicos",
+          "term": null,
+          "unit": null,
+          "width": 330
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "memory",
+          "label": "Memórias",
+          "term": null,
+          "unit": null,
+          "width": 330
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "external",
+          "label": "Flash externa",
+          "term": null,
+          "unit": null,
+          "width": 220
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "voltage",
+          "label": "Lógica / alimentação",
+          "term": null,
+          "unit": null,
+          "width": 260
+        }
+      ],
+      "id": "logica-programavel",
+      "name": "Lógica programável",
+      "position": 2
+    },
+    {
+      "columns": [
+        {
+          "digits": null,
+          "field": null,
+          "format": "component",
+          "group_id": "acervo",
+          "help": null,
+          "key": "name",
+          "label": "Componente",
+          "position": 1,
+          "term": null,
+          "unit": null,
+          "width": 270
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "family",
+          "group_id": "acervo",
+          "help": null,
+          "key": "family",
+          "label": "Família",
+          "position": 2,
+          "term": null,
+          "unit": null,
+          "width": 90
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "stock",
+          "group_id": "acervo",
+          "help": "Unidades disponíveis / total no acervo. Registre compras, uso e descartes na aba Histórico.",
+          "key": "stock",
+          "label": "Disponível / total",
+          "position": 3,
+          "term": null,
+          "unit": null,
+          "width": 130
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "resolution",
+          "label": "Resolução",
+          "term": null,
+          "unit": null,
+          "width": 260
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "serial",
+          "label": "Interface",
+          "term": null,
+          "unit": null,
+          "width": 330
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "connector",
+          "label": "Conexão",
+          "term": null,
+          "unit": null,
+          "width": 330
+        },
+        {
+          "digits": null,
+          "field": null,
+          "format": "annotated",
+          "group_id": "perifericos",
+          "help": null,
+          "key": "compatibility",
+          "label": "Compatibilidade",
+          "term": null,
+          "unit": null,
+          "width": 330
+        }
+      ],
+      "id": "perifericos",
+      "name": "Periféricos",
+      "position": 3
     }
   ],
   "column_groups": [
@@ -722,6 +912,7 @@ window.CATALOG = {
       "dmips_per_mhz": 2.14,
       "eeprom": "Sem EEPROM",
       "estimated": 0,
+      "evidence": "docs/evidence/weact-h743-m12-purchase.png",
       "external": "8 MB Flash QSPI + 8 MB Flash SPI na placa (WeAct) · microSD",
       "family": "STM32",
       "flash": "2 MiB (2 bancos de 1 MiB)",
@@ -740,7 +931,7 @@ window.CATALOG = {
       "kind": "placa",
       "logic": "3,3 V",
       "name": "WeAct H743",
-      "notes": "RAM: 1.056 KiB = 864 KiB de SRAM (AXI 512 + SRAM1–3 288 + SRAM4 64) + 192 KiB de TCM (64 ITCM + 128 DTCM), mais 4 KiB de backup; nem todo banco é acessível por todo DMA. A placa ocupa pinos dos headers: TFT em PE10–PE14, câmera DCMI, microSD em PC8–PC12/PD2 e flashes em PB2–PB4/PB6/PD6/PD7/PD11–PD13/PE2. PC2_C/PC3_C são pads analógicos. Ethernet e USB HS precisam de PHY externo.",
+      "notes": "RAM: 1.056 KiB = 864 KiB de SRAM (AXI 512 + SRAM1–3 288 + SRAM4 64) + 192 KiB de TCM (64 ITCM + 128 DTCM), mais 4 KiB de backup; nem todo banco é acessível por todo DMA. A placa ocupa pinos dos headers: TFT em PE10–PE14, câmera DCMI, microSD em PC8–PC12/PD2 e flashes em PB2–PB4/PB6/PD6/PD7/PD11–PD13/PE2. PC2_C/PC3_C são pads analógicos. Ethernet e USB HS precisam de PHY externo. Em 26/10/2026 o usuário confirmou que o kit H743-LCD-M12 é esta mesma unidade. Câmera cadastrada em Periféricos; display de 0,96″ permanece como recurso da placa.",
       "origin": "Fotos da placa enviadas pelo usuário em 17/09/2026 (chip STM32H743VIT6, serigrafia WeAct Studio); documentação oficial WeActStudio/MiniSTM32H7xx",
       "oscillator": "Cristal 25 MHz (HSE) + 32,768 kHz (LSE); núcleo até 480 MHz via PLL",
       "package": "STM32H743VIT6 · LQFP-100",
@@ -805,6 +996,167 @@ window.CATALOG = {
       "use": "Câmera e display, processamento de imagem e áudio, DSP em ponto flutuante e registro em microSD.",
       "variant": "WeAct MiniSTM32H7xx · H743VIT6 · TFT 0,96″ · 8 MB QSPI + 8 MB SPI",
       "voltage": "3,3 V"
+    },
+    {
+      "category_id": "logica-programavel",
+      "connector": "2 × 24 furos de 2,54 mm · tela RGB em cabo flexível de 40 vias",
+      "cpu": "Lógica programável; processador RISC-V pode ser implementado no projeto",
+      "datasheet": "tangnano9k-schematic.pdf",
+      "document_kind": "esquema",
+      "estimated": 0,
+      "evidence": "docs/evidence/tangnano9k-lcd-purchase.png",
+      "external": "Flash SPI de 32 Mbit (4 MiB)",
+      "family": "GOWIN",
+      "gpio": "2 fileiras de 24 furos; sinais compartilhados com tela, microSD e HDMI",
+      "history": [
+        {
+          "date": "2026-10-26",
+          "id": 17,
+          "note": "Compra informada em 26/10/2026; data exata não informada. Item cadastrado separadamente do kit.",
+          "quantity": 1,
+          "type_id": "compra"
+        }
+      ],
+      "id": "tangnano9k",
+      "kind": "placa",
+      "logic": "8.640 LUT4 · 6.480 registradores · 20 multiplicadores 18 × 18 · 2 PLL",
+      "memory": "468 Kibit de RAM em blocos · 17.280 bits de Shadow SRAM · 64 Mbit (8 MiB) de PSRAM",
+      "name": "Sipeed Tang Nano 9K",
+      "notes": "Compra informada na variante “9k with 4.3 LCD”. Tela cadastrada separadamente em Periféricos. Recebimento e teste físico não informados. A frequência do oscilador não é um limite de processamento.",
+      "origin": "Anúncio enviado pelo usuário em 26/10/2026; características e ligações conferidas na documentação Sipeed",
+      "oscillator": "27 MHz na placa; frequência do circuito depende do projeto e da análise de temporização",
+      "package": "GW1NR-LV9QN88PC6/I5 · QN88P",
+      "pinout": "tangnano9k-pinout-simple.png",
+      "pinout_credit": "Desenhos do almoxarifado; esquema e mapa de pinos oficiais Sipeed, consultados em 26/10/2026.",
+      "pinout_notice": "Vista superior, USB-C no topo. Pinos 79–86: lógica de 1,8 V. Tela RGB, HDMI e conectores compartilham sinais; conferir o esquema antes de usar em conjunto.",
+      "pinout_source": "tangnano9k-schematic.pdf",
+      "pinouts": [
+        {
+          "file": "tangnano9k-pinout-simple.png",
+          "title": "Visão simples · 48 furos, recursos da placa e bancos de tensão"
+        },
+        {
+          "file": "tangnano9k-pinout-full.png",
+          "title": "Referência completa · 48 furos, recursos da placa e bancos de tensão"
+        }
+      ],
+      "position": 12,
+      "programmer": "USB-JTAG integrado com BL702; JTAG é a interface de gravação e depuração. Descrever o circuito em Verilog, uma linguagem de descrição de hardware, e gerar a configuração.",
+      "schematic": "tangnano9k-schematic.pdf",
+      "serial": "HDMI (vídeo digital), RGB (vermelho/verde/azul) paralelo e SPI (interface periférica serial); demais interfaces em lógica",
+      "source_url": "https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html",
+      "special": "6 LEDs, 2 botões, leitor microSD e conector para tela SPI de 1,14″; PSRAM integrada ao chip",
+      "stock": {
+        "available": 1,
+        "in_use": 0,
+        "total": 1
+      },
+      "subtitle": "GOWIN GW1NR-LV9QN88PC6/I5 · FPGA de 8.640 LUT4",
+      "use": "Circuitos digitais, vídeo, interfaces paralelas e processadores RISC-V implementados em lógica.",
+      "variant": "Sipeed Tang Nano 9K · kit com LCD de 4,3″",
+      "voltage": "Bancos de 3,3 V e 1,8 V; alimentação por USB-C de 5 V"
+    },
+    {
+      "category_id": "perifericos",
+      "compatibility": "Kit Tang Nano 9K; exemplo lcd_4.3 para 480 × 272",
+      "connector": "Porta RGB de 40 vias da Tang Nano 9K; confirmar face dos contatos e pino 1 no painel recebido",
+      "estimated": 0,
+      "evidence": "docs/evidence/tangnano9k-lcd-purchase.png",
+      "family": "Display",
+      "history": [
+        {
+          "date": "2026-10-26",
+          "id": 18,
+          "note": "Compra informada em 26/10/2026; data exata não informada. Item cadastrado separadamente do kit.",
+          "quantity": 1,
+          "type_id": "compra"
+        }
+      ],
+      "id": "lcd43",
+      "kind": "placa",
+      "name": "LCD RGB 4,3″",
+      "notes": "Tamanho e resolução confirmados no anúncio. Código exato do painel, presença de toque e limites elétricos do painel não informados; não assumir toque. A folha mostra a porta da placa, não uma pinagem confirmada do painel adquirido.",
+      "origin": "Anúncio enviado em 26/10/2026, variante “9k with 4.3 LCD”; esquema e exemplo Sipeed lcd_4.3",
+      "pinout": "lcd43-connections-simple.png",
+      "pinout_credit": "Desenhos do almoxarifado; porta J4 do esquema Sipeed e restrições de pinos do exemplo lcd_4.3.",
+      "pinout_notice": "Referência da porta da Tang Nano 9K. Código do painel não confirmado. Confira orientação e contatos do cabo antes de conectar.",
+      "pinout_source": "tangnano9k-schematic.pdf",
+      "pinouts": [
+        {
+          "file": "lcd43-connections-simple.png",
+          "title": "Visão simples · porta RGB da Tang Nano 9K"
+        },
+        {
+          "file": "lcd43-connections-full.png",
+          "title": "Referência completa · porta RGB da Tang Nano 9K"
+        }
+      ],
+      "position": 13,
+      "programmer": "Conectar à porta RGB de 40 vias da Tang Nano 9K e usar o exemplo lcd_4.3 da Sipeed. A tela recebe pixels e sinais de sincronismo continuamente.",
+      "resolution": "480 × 272 pixels",
+      "serial": "RGB paralelo; exemplo Sipeed com 16 bits de cor (5 vermelho, 6 verde, 5 azul)",
+      "size": "Diagonal de 4,3 polegadas",
+      "source_url": "https://github.com/sipeed/TangNano-9K-example/tree/main/lcd_4.3",
+      "stock": {
+        "available": 1,
+        "in_use": 0,
+        "total": 1
+      },
+      "subtitle": "4,3″ · 480 × 272 pixels · kit Tang Nano 9K",
+      "use": "Interface gráfica, instrumentos de bancada e estudo de geração de vídeo em lógica programável.",
+      "variant": "Tela LCD de 4,3″ do kit Sipeed Tang Nano 9K",
+      "voltage": "Referência da porta Sipeed: lógica de 3,3 V; luz de fundo pelo circuito da placa"
+    },
+    {
+      "category_id": "perifericos",
+      "compatibility": "Kit H743-LCD-M12; identificar o sensor antes de selecionar seu controlador de software",
+      "connector": "Referência da H743: cabo flexível de 24 vias; conferir o módulo recebido",
+      "estimated": 0,
+      "evidence": "docs/evidence/weact-h743-m12-purchase.png",
+      "family": "Câmera",
+      "history": [
+        {
+          "date": "2026-10-26",
+          "id": 19,
+          "note": "Compra informada em 26/10/2026; data exata não informada. Item cadastrado separadamente do kit.",
+          "quantity": 1,
+          "type_id": "compra"
+        }
+      ],
+      "id": "camera-m12",
+      "kind": "placa",
+      "name": "Câmera WeAct M12",
+      "notes": "A H743 deste kit é a mesma unidade registrada em setembro, conforme confirmação do usuário. M12 não permite concluir que seja OV2640, OV7725 ou outro sensor. Recebimento e teste físico não informados.",
+      "origin": "Anúncio enviado em 26/10/2026, variante “H743-LCD-M12”; sinais da porta no esquema oficial WeAct V1.2",
+      "pinout": "camera-m12-connections-simple.png",
+      "pinout_credit": "Desenhos do almoxarifado; porta de câmera do esquema WeAct MiniSTM32H7xx V1.2. Não representa pinagem confirmada do sensor.",
+      "pinout_notice": "Sensor não identificado. As imagens mostram sinais da H743, sem atribuir números aos contatos do módulo adquirido.",
+      "pinout_source": "h743-schematic.pdf",
+      "pinouts": [
+        {
+          "file": "camera-m12-connections-simple.png",
+          "title": "Visão simples · sinais da porta de câmera da H743"
+        },
+        {
+          "file": "camera-m12-connections-full.png",
+          "title": "Referência completa · sinais da porta de câmera da H743"
+        }
+      ],
+      "position": 14,
+      "programmer": "Conectar à porta da H743, identificar o sensor e selecionar seu controlador de software. Configuração por SCCB (Serial Camera Control Bus, barramento de controle da câmera); pixels pelo barramento paralelo.",
+      "resolution": "A confirmar: o anúncio não identifica o sensor",
+      "sensor": "A confirmar; M12 descreve a montagem da lente, não o sensor",
+      "serial": "DVP (Digital Video Port, vídeo digital paralelo); DCMI é a interface de câmera do STM32",
+      "source_url": "https://github.com/WeActStudio/MiniSTM32H7xx",
+      "stock": {
+        "available": 1,
+        "in_use": 0,
+        "total": 1
+      },
+      "subtitle": "Lente M12 · kit H743-LCD-M12 · sensor a confirmar",
+      "use": "Captura de imagens e projetos de visão embarcada com a WeAct H743.",
+      "variant": "Módulo de câmera M12 do kit WeAct H743-LCD-M12",
+      "voltage": "Usar as alimentações da porta de câmera WeAct; não aplicar 5 V aos sinais"
     }
   ],
   "families": [
@@ -828,6 +1180,27 @@ window.CATALOG = {
       "name": "STM32",
       "position": 3,
       "tone": "blue"
+    },
+    {
+      "description": "FPGA GOWIN: matriz lógica programável",
+      "id": "GOWIN",
+      "name": "GOWIN",
+      "position": 4,
+      "tone": "violet"
+    },
+    {
+      "description": "Telas e módulos de visualização",
+      "id": "Display",
+      "name": "Display",
+      "position": 5,
+      "tone": "teal"
+    },
+    {
+      "description": "Módulos de captura de imagem",
+      "id": "Câmera",
+      "name": "Câmera",
+      "position": 6,
+      "tone": "orange"
     }
   ],
   "glossary": [
@@ -1085,6 +1458,18 @@ window.CATALOG = {
     },
     {
       "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Interface de câmera em que vários fios transportam os bits de cada pixel, acompanhados de clock e sinais de sincronismo.",
+      "example": "A porta de câmera da WeAct H743 usa D0–D7, PIXCLK, HSYNC e VSYNC; identificar o sensor antes de configurar o software.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Digital Video Port · porta de vídeo digital",
+      "position": 24,
+      "short": "Interface de câmera em que vários fios transportam os bits de cada pixel, acompanhados de clock e sinais de sincronismo.",
+      "term": "DVP"
+    },
+    {
+      "aliases": [],
       "category_id": "fisico",
       "detail": "Reúne pinagem, limites elétricos e temporizações. O manual de referência explica registros; errata registra limitações conhecidas.",
       "example": "Use o datasheet local para limites completos; a tabela do acervo resume critérios de escolha.",
@@ -1187,6 +1572,18 @@ window.CATALOG = {
     {
       "aliases": [],
       "category_id": "fundamentos",
+      "detail": "Chip cujo circuito digital é configurado pelo projeto: portas, registradores e conexões passam a funcionar em paralelo.",
+      "example": "A Tang Nano 9K permite implementar vídeo, interfaces ou um processador RISC-V; esse processador não vem fixo no chip.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Field-Programmable Gate Array · matriz de portas programável em campo",
+      "position": 17,
+      "short": "Chip cujo circuito digital é configurado pelo projeto: portas, registradores e conexões passam a funcionar em paralelo.",
+      "term": "FPGA"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
       "detail": "A precisão suportada depende do núcleo. O compilador precisa configurar corretamente a geração das instruções.",
       "example": "F411 e G474 possuem FPU de precisão simples; BluePill Cortex-M3 não.",
       "figure": null,
@@ -1255,6 +1652,18 @@ window.CATALOG = {
       "position": 2,
       "short": "Alguns pinos aceitam 5 V sob condições específicas.",
       "term": "GPIO 5 V tolerant"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Interface digital de áudio e vídeo. A existência de um conector não garante que todo projeto implemente áudio ou todos os modos do padrão.",
+      "example": "A Tang Nano 9K expõe um conector HDMI; seus sinais compartilham pinos com a porta RGB.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "High-Definition Multimedia Interface · interface multimídia de alta definição",
+      "position": 23,
+      "short": "Interface digital de áudio e vídeo. A existência de um conector não garante que todo projeto implemente áudio ou todos os modos do padrão.",
+      "term": "HDMI"
     },
     {
       "aliases": [],
@@ -1387,6 +1796,18 @@ window.CATALOG = {
     },
     {
       "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Interface serial usada para testar circuitos, depurar e, em dispositivos compatíveis, carregar a configuração.",
+      "example": "O BL702 da Tang Nano 9K oferece acesso USB-JTAG integrado para configurar a FPGA.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Joint Test Action Group · interface padronizada de teste e depuração",
+      "position": 22,
+      "short": "Interface serial usada para testar circuitos, depurar e, em dispositivos compatíveis, carregar a configuração.",
+      "term": "JTAG"
+    },
+    {
+      "aliases": [],
       "category_id": "fisico",
       "detail": "Um KiB contém 1024 bytes; um MiB contém 1048576 bytes. Fabricantes frequentemente escrevem KB para capacidades binárias.",
       "example": "512 KiB = 524288 bytes. Palavras de 14 bits dos PICs precisam ser descritas separadamente.",
@@ -1396,6 +1817,18 @@ window.CATALOG = {
       "position": 1,
       "short": "Unidade binária de capacidade de memória.",
       "term": "KiB"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Painel que controla a passagem da luz para formar pixels. A interface e o controlador variam entre modelos.",
+      "example": "O kit da Tang Nano 9K inclui uma tela de 4,3 polegadas e 480 × 272 pixels; o código do painel ainda não foi confirmado.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Liquid Crystal Display · tela de cristal líquido",
+      "position": 20,
+      "short": "Painel que controla a passagem da luz para formar pixels. A interface e o controlador variam entre modelos.",
+      "term": "LCD"
     },
     {
       "aliases": [
@@ -1446,6 +1879,18 @@ window.CATALOG = {
       "position": 16,
       "short": "Fonte externa de baixa frequência.",
       "term": "LSE"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Pequeno bloco configurável que implementa uma função lógica de até quatro entradas. A quantidade descreve capacidade lógica, não velocidade de uma CPU.",
+      "example": "A Tang Nano 9K tem 8.640 LUT4; o uso real depende do circuito sintetizado.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Look-Up Table de 4 entradas · tabela de consulta lógica de quatro entradas",
+      "position": 18,
+      "short": "Pequeno bloco configurável que implementa uma função lógica de até quatro entradas. A quantidade descreve capacidade lógica, não velocidade de uma CPU.",
+      "term": "LUT4"
     },
     {
       "aliases": [],
@@ -1667,6 +2112,18 @@ window.CATALOG = {
     },
     {
       "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Memória com atualização interna que apresenta uma interface mais simples ao circuito controlador. Capacidade não significa a mesma latência da RAM em blocos.",
+      "example": "O GW1NR da Tang Nano 9K inclui 64 Mbit, equivalentes a 8 MiB; o projeto precisa de um controlador para acessá-la.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Pseudo-Static Random-Access Memory · memória de acesso aleatório pseudoestática",
+      "position": 19,
+      "short": "Memória com atualização interna que apresenta uma interface mais simples ao circuito controlador. Capacidade não significa a mesma latência da RAM em blocos.",
+      "term": "PSRAM"
+    },
+    {
+      "aliases": [],
       "category_id": "analogico",
       "detail": "Um timer conta de 0 até ARR (o período) e recomeça; um registrador de comparação, o CCR, define até onde a saída fica em 1. O duty cycle é CCR ÷ (ARR + 1) e a frequência é f_timer ÷ ((PSC + 1) × (ARR + 1)), em que PSC é o divisor de entrada. Mudar o CCR muda a largura do pulso sem mudar a frequência, e o hardware só aplica o novo valor no fim do período, sem cortar um pulso ao meio.\n\nFrequência e resolução disputam o mesmo clock: com o timer a 240 MHz, 20 kHz deixam 12 000 degraus de duty (cerca de 13,6 bits), mas 1 MHz deixa só 240. Escolha pela carga: LED acima de 1 kHz para não piscar, motor DC entre 16 e 25 kHz para ficar fora do audível, servo em 50 Hz com pulso de 1 a 2 ms, fontes chaveadas em 100 kHz ou mais (onde o HRTIM ajuda). Para virar tensão contínua, como um DAC simples, o PWM passa por um filtro RC.\n\nO pino não fornece potência: motores, fitas de LED e resistências precisam de transistor, MOSFET ou driver (ponte H), com diodo de roda livre em cargas indutivas. Em meia ponte ou ponte completa, os timers avançados geram pares complementares (CHx e CHxN) com tempo morto, um intervalo em que os dois transistores ficam desligados para nunca conduzirem juntos, e uma entrada de freio (BKIN) que desliga as saídas por hardware numa falha. O alinhamento central (contagem para cima e para baixo) reduz ruído no controle de motores.\n\nNo STM32H743 quase todo timer gera PWM: TIM1 e TIM8 (avançados, com saídas complementares e tempo morto), TIM2 e TIM5 (32 bits), TIM3, TIM4, TIM12 a TIM17 e os LPTIM, com clock de até 240 MHz, além do HRTIM, com resolução de 2,1 ns. Canais do mesmo timer dividem a frequência e só variam o duty; frequências diferentes pedem timers diferentes. O DMA pode trocar o CCR a cada período, o que serve para fitas de LED endereçáveis (WS2812) ou formas de onda.",
       "example": "H743 WeAct: TIM2_CH1 a CH4 em PA0–PA3, livres; TIM1_CH1/CH1N em PE9/PE8 para meia ponte; a luz de fundo do display (PE10) é TIM1_CH2N, então o brilho do LCD se ajusta por PWM. O PIC12F675 não tem PWM por hardware e o PIC12F683 tem um CCP. No Uno, analogWrite() gera PWM de cerca de 490 ou 980 Hz.",
@@ -1719,6 +2176,18 @@ window.CATALOG = {
     },
     {
       "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Representação de cores por três canais. Em uma porta RGB paralela, grupos de fios levam os canais junto com sinais de sincronismo.",
+      "example": "O exemplo lcd_4.3 da Sipeed usa RGB565: 5 bits vermelhos, 6 verdes e 5 azuis.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Red, Green, Blue · vermelho, verde e azul",
+      "position": 21,
+      "short": "Representação de cores por três canais. Em uma porta RGB paralela, grupos de fios levam os canais junto com sinais de sincronismo.",
+      "term": "RGB"
+    },
+    {
+      "aliases": [],
       "category_id": "eletrica",
       "detail": "Pode permanecer ativo com alimentação de backup. Precisão depende da fonte de clock e calibração.",
       "example": "VBAT pode alimentar o domínio de backup de STM32.",
@@ -1740,6 +2209,18 @@ window.CATALOG = {
       "position": 21,
       "short": "Sinal de entrada de dados seriais.",
       "term": "RX"
+    },
+    {
+      "aliases": [],
+      "category_id": "fundamentos",
+      "detail": "Barramento usado para configurar registradores de sensores de imagem. Ele transmite ajustes; os pixels seguem por outra interface.",
+      "example": "Na referência WeAct H743, PB8 e PB9 são os sinais de clock e dados para configurar a câmera.",
+      "figure": null,
+      "figure_caption": null,
+      "meaning": "Serial Camera Control Bus · barramento serial de controle de câmera",
+      "position": 25,
+      "short": "Barramento usado para configurar registradores de sensores de imagem. Ele transmite ajustes; os pixels seguem por outra interface.",
+      "term": "SCCB"
     },
     {
       "aliases": [],
@@ -2423,7 +2904,7 @@ window.CATALOG = {
       "rank": 6
     }
   ],
-  "schema": 24,
+  "schema": 25,
   "sources": [
     {
       "file": "assets/documents/pic16f887.pdf",
@@ -2538,6 +3019,12 @@ window.CATALOG = {
       "retrieved": "2026-09-17",
       "sha256": "222eb3b6b193e9a1deb30acb06c254adc029a6bcf43aaa79a03d0db99fa6a7fb",
       "url": "https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx_BoardShape Board Shape 外形 V12.pdf"
+    },
+    {
+      "file": "assets/documents/tangnano9k-schematic.pdf",
+      "retrieved": "2026-10-26",
+      "sha256": "71ccf1b7731589c8bc5b4c1dcf0c8906f52831785c703732d43a70f01ec574ec",
+      "url": "https://dl.sipeed.com/fileList/TANG/Nano%209K/2_Schematic/Tang_Nano_9k_3672_Schematic.pdf"
     }
   ],
   "spec_fields": [
@@ -2708,6 +3195,62 @@ window.CATALOG = {
       "key": "notes",
       "label": "Observações",
       "position": 21
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "logic",
+      "label": "Recursos lógicos",
+      "position": 22
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "memory",
+      "label": "Memórias do dispositivo",
+      "position": 23
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "resolution",
+      "label": "Resolução",
+      "position": 24
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "size",
+      "label": "Tamanho",
+      "position": 25
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "sensor",
+      "label": "Sensor",
+      "position": 26
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "connector",
+      "label": "Conexão",
+      "position": 27
+    },
+    {
+      "format": "text",
+      "in_compare": 1,
+      "in_sheet": 1,
+      "key": "compatibility",
+      "label": "Compatibilidade",
+      "position": 28
     }
   ],
   "table_columns": [

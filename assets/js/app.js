@@ -7,7 +7,7 @@ function navigate(view) {
   state.view = view;
   $('#tooltip').hidden = true;
   $$('nav [data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === view));
-  $('#breadcrumb').textContent = VIEW_TITLES[view] || C.categories[0].name;
+  $('#breadcrumb').textContent = VIEW_TITLES[view] || currentCategory().name;
   if (view === 'catalogo') {
     $('#main').innerHTML = catalogView();
     drawRows();
@@ -40,6 +40,7 @@ function showMode() {
 
 /* Cada botão declara sua ação em data-*; a ordem dos testes segue a especificidade. */
 const clickActions = [
+  ['data-category', b => { state.category = b.dataset.category; state.expanded = null; state.tab = 'specs'; state.sortKey = null; loadColumnPreferences(); navigate('catalogo'); }],
   ['data-column-move', b => moveColumn(b.dataset.columnMove, b.dataset.direction)],
   ['data-reset-columns', resetColumns],
   ['data-term', b => termModal(b.dataset.term)],

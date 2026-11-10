@@ -10,7 +10,8 @@ const DETAIL_TABS = [
 ];
 
 function detail(c) {
-  const tabs = DETAIL_TABS.map(([id, label]) => {
+  const tabs = DETAIL_TABS.filter(([id]) => !['reader', 'pdf'].includes(id) || c.datasheet).map(([id, label]) => {
+    if (id === 'reader' && c.document_kind === 'esquema') label = 'Leitura do esquema';
     const active = state.tab === id;
     const count = id === 'history' ? ` <span class="tab-count">${c.history.length}</span>` : '';
     return `<button role="tab" aria-selected="${active}" class="${active ? 'active' : ''}" data-tab="${id}">${label}${count}</button>`;
@@ -65,10 +66,10 @@ function specPanel(c) {
         <div class="info-card">
           <h3>Onde este componente faz sentido</h3><p>${annotate(c.use)}</p>
           <h3>Na sua bancada</h3><p>${annotate(c.notes)}</p>
-          <h3>Como programar</h3><p>${annotate(c.programmer)}</p>
+          <h3>${c.category_id === 'perifericos' ? 'Como conectar' : 'Como programar'}</h3><p>${annotate(c.programmer)}</p>
         </div>
         <p class="source">Inventário: ${esc(c.origin)}.</p>
-        <p class="source">Frequência máxima não é uma comparação direta de desempenho entre arquiteturas. Capacidades resumidas; limites completos no datasheet.</p>
+        ${c.category_id === 'microcontroladores' ? '<p class="source">Frequência máxima não é uma comparação direta de desempenho entre arquiteturas. Capacidades resumidas; limites completos no datasheet.</p>' : ''}
         ${c.evidence ? `<p class="source"><a href="${esc(c.evidence)}" target="_blank">Referência da variante adquirida ↗</a></p>` : ''}
         ${sourceLinks(c)}
       </div>
@@ -78,8 +79,8 @@ function specPanel(c) {
 function sourceLinks(c) {
   const source = C.sources.find(s => s.file.endsWith('/' + c.datasheet));
   const datasheet = source
-    ? `<a href="${esc(source.url)}" target="_blank" rel="noreferrer">Fonte do datasheet ↗</a> · consultada em ${esc(formatDate(source.retrieved))}`
-    : 'Fonte técnica em preparação';
+    ? `<a href="${esc(source.url)}" target="_blank" rel="noreferrer">Fonte do ${c.document_kind === 'esquema' ? 'esquema' : 'datasheet'} ↗</a> · consultada em ${esc(formatDate(source.retrieved))}`
+    : c.source_url ? `<a href="${esc(c.source_url)}" target="_blank" rel="noreferrer">Referência do fabricante ↗</a>` : 'Fonte técnica em preparação';
   return `<p class="source">${datasheet}${c.schematic ? ` · <a href="assets/documents/${esc(c.schematic)}" target="_blank">Esquema da placa ↗</a>` : ''}</p>`;
 }
 
@@ -101,7 +102,7 @@ function pinsPanel(c) {
   return `<p>${annotate('Pinout')} · ${orientation}</p>
     ${c.pinout_notice ? `<div class="notice">${esc(c.pinout_notice)}</div>` : ''}
     ${pinoutFigures(c)}
-    <p class="source">${c.pinout_credit ? esc(c.pinout_credit) + ' · ' : ''}<a href="assets/documents/${esc(c.pinout_source)}" target="_blank">Documento completo de pinagem ↗</a> · Clique no desenho para ampliar. ${c.kind === 'chip' ? 'Funções alternativas completas estão no datasheet.' : 'As ligações da sua montagem podem ocupar pinos deste desenho.'}</p>
+    <p class="source">${c.pinout_credit ? esc(c.pinout_credit) + ' · ' : ''}${c.pinout_source ? `<a href="assets/documents/${esc(c.pinout_source)}" target="_blank">Documento completo de pinagem ↗</a> · ` : ''}Clique no desenho para ampliar. ${c.kind === 'chip' ? 'Funções alternativas completas estão no datasheet.' : 'As ligações da sua montagem podem ocupar pinos deste desenho.'}</p>
     <div class="pin-list">${pins.map(pin => `<button data-term="${esc(pin.term)}">${esc(pin.label)} ⓘ</button>`).join('')}</div>
     ${sourceLinks(c)}`;
 }
@@ -109,6 +110,6 @@ function pinsPanel(c) {
 function pdfPanel(c) {
   const file = `assets/documents/${esc(c.datasheet)}`;
   return `<p><a href="${file}" target="_blank">Abrir PDF em outra aba ↗</a></p>
-    <p class="source">O PDF preserva a diagramação original. As explicações interativas estão na aba Datasheet comentado.</p>
+    <p class="source">O PDF preserva a diagramação original. As explicações interativas estão na aba ${c.document_kind === 'esquema' ? 'Leitura do esquema' : 'Datasheet comentado'}.</p>
     <object class="pdf-frame" data="${file}" type="application/pdf"><p>Visualizador não disponível. Use o link acima ou a leitura comentada.</p></object>`;
 }

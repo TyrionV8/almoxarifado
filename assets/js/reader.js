@@ -15,10 +15,10 @@ function loadReader(c, target) {
     target.innerHTML = `
       <div class="reader-controls">
         <button class="pill-button" data-page-step="-1" aria-label="Página anterior">←</button>
-        <label>Página <input data-page type="number" value="1" min="1" max="${pages.length}" aria-label="Página do datasheet"></label>
+        <label>Página <input data-page type="number" value="1" min="1" max="${pages.length}" aria-label="Página do documento"></label>
         <span>de ${pages.length}</span>
         <button class="pill-button" data-page-step="1" aria-label="Próxima página">→</button>
-        <input data-find-text type="search" placeholder="Localizar no documento…" aria-label="Buscar no datasheet">
+        <input data-find-text type="search" placeholder="Localizar no documento…" aria-label="Buscar no documento">
         <button class="pill-button" data-find-next>Localizar próxima</button>
         <a href="assets/documents/${esc(c.datasheet)}" target="_blank">PDF original ↗</a>
       </div>

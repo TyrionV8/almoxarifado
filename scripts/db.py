@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data'
 DATABASE = DATA / 'inventory.sqlite'
 SOURCES = DATA / 'sources.json'
-SCHEMA_VERSION = 24
+SCHEMA_VERSION = 25
 MAX_MOVEMENT_QUANTITY = 1000
 MAX_NOTE_LENGTH = 500
 
@@ -133,9 +133,13 @@ def build_catalog(con: sqlite3.Connection) -> dict:
     for term in glossary:
         term['aliases'] = json.loads(term['aliases'])
 
+    categories = rows(con, 'SELECT * FROM categories ORDER BY position, id')
+    for category in categories:
+        category['columns'] = json.loads(category.pop('columns_json') or 'null')
+
     return {
         'schema': SCHEMA_VERSION,
-        'categories': rows(con, 'SELECT * FROM categories ORDER BY id'),
+        'categories': categories,
         'families': rows(con, 'SELECT * FROM families ORDER BY position'),
         'components': components,
         'movement_types': rows(con, 'SELECT * FROM movement_types ORDER BY position'),

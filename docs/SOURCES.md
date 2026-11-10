@@ -2,6 +2,8 @@
 
 Documentos obtidos em 12/09/2026; os três da H743 em 17/09/2026. Os originais permanecem sem alterações; as prévias são renderizações das páginas identificadas. Direitos e marcas continuam pertencendo aos respectivos autores. Não há licença única aplicada aos documentos de terceiros.
 
+Em 26/10/2026 foi acrescentado o esquema oficial Sipeed da Tang Nano 9K (cinco páginas), com hash em `data/sources.json`. As seis novas folhas técnicas, anúncios e referência do exemplo da tela estão documentados em [COMPRAS-2026-10-26.md](COMPRAS-2026-10-26.md).
+
 | Arquivo local | Páginas | Origem |
 | --- | ---: | --- |
 | [pic16f887.pdf](../assets/documents/pic16f887.pdf) | 288 | [Fabricante / repositório oficial](https://ww1.microchip.com/downloads/en/devicedoc/41291d.pdf) |
@@ -23,6 +25,7 @@ Documentos obtidos em 12/09/2026; os três da H743 em 17/09/2026. Os originais p
 | [stm32h743vi.pdf](../assets/documents/stm32h743vi.pdf) | 357 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Datasheet/MCU/STM32H743VI_Datasheet.pdf) · ST DS12110 Rev 7 |
 | [h743-schematic.pdf](../assets/documents/h743-schematic.pdf) | 6 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx%20SchDoc%20V12.pdf) · esquema V1.2 |
 | [h743-pinout.pdf](../assets/documents/h743-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/MiniSTM32H7xx/master/Hardware/STM32H7xx_BoardShape%20Board%20Shape%20%E5%A4%96%E5%BD%A2%20V12.pdf) · desenho mecânico V1.2 |
+| [tangnano9k-schematic.pdf](../assets/documents/tangnano9k-schematic.pdf) | 5 | [Sipeed, esquema Tang_Nano_9k_3672](https://dl.sipeed.com/fileList/TANG/Nano%209K/2_Schematic/Tang_Nano_9k_3672_Schematic.pdf) · portas na página 2 |
 
 ## Pinagens
 
